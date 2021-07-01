@@ -2,12 +2,14 @@ service: webshop
 
 custom:
   productsTableName: 'products-${self:provider.stage}'
+  ordersTableName: 'orders-${self:provider.stage}'
 
 provider:
   name: aws
   runtime: python3.8
   environment:
     PRODUCTS_TABLE: ${self:custom.productsTableName}
+    ORDERS_TABLE: ${self:custom.ordersTableName}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -17,7 +19,9 @@ provider:
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
-      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.PRODUCTS_TABLE}"
+      Resource:
+        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.PRODUCTS_TABLE}"
+        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.ORDERS_TABLE}"
 
 functions:
   create-product:
@@ -49,6 +53,36 @@ functions:
           method: delete
           cors: true
 
+  create-order:
+    handler: src/functions/order/create_order.create_order
+    events:
+      - http:
+          path: api/orders
+          method: post
+          cors: true
+  list-orders:
+    handler: src/functions/order/list_orders.list_orders
+    events:
+      - http:
+          path: api/orders
+          method: get
+          cors: true
+  get-order:
+    handler: src/functions/order/get_order.get_order
+    events:
+      - http:
+          path: api/orders/{id}
+          method: get
+          cors: true
+  delete-order:
+    handler: src/functions/order/delete_order.delete_order
+    events:
+      - http:
+          path: api/orders/{id}
+          method: delete
+          cors: true
+
+
 resources:
   Resources:
     ProductsDynamoDbTable:
@@ -67,3 +101,19 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         TableName: ${self:provider.environment.PRODUCTS_TABLE}
+    OrdersDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.ORDERS_TABLE}

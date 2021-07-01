@@ -2,12 +2,12 @@ import json
 from src.persistence import db_service
 
 
-def delete_product(event, context):
-    table = db_service.get_products_table()
+def delete_order(event, context):
+    table = db_service.get_orders_table()
 
-    product_exists, item = db_service.does_item_exist(event, table)
+    orders_exists, item = db_service.does_item_exist(event, table)
 
-    if product_exists:
+    if orders_exists:
         table.delete_item(
             Key={
                 'id': event['pathParameters']['id']
@@ -19,7 +19,7 @@ def delete_product(event, context):
     else:
         response = {
             "statusCode": 406,
-            "body": json.dumps({'Message': 'Product does not exists. Product not found'})
+            "body": json.dumps({'Message': 'Order does not exists. Order not found'})
         }
 
     return response
