@@ -8,18 +8,6 @@ stages:
   - Static Analysis
   - Test
 
-mypy:
-  stage: Static Analysis
-  script:
-  - pwd
-  - ls -l
-  - python -m mypy src/*.py
-
-flake8:
-  stage: Static Analysis
-  script:
-  - flake8 --max-line-length=120 src/*.py
-
 pylint:
   stage: Static Analysis
   allow_failure: true
