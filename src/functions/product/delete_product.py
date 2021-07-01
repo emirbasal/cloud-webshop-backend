@@ -19,8 +19,8 @@ def delete_product(event, context):
         }
     else:
         response = {
-            "statusCode": 404,
-            "body": json.dumps({'Message': 'Product not found'})
+            "statusCode": 406,
+            "body": json.dumps({'Message': 'Product does not exists. Product not found'})
         }
 
     return response

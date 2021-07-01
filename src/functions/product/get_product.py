@@ -17,7 +17,7 @@ def get_product(event, context):
 
     else:
         response = {
-            "statusCode": 404,
+            "statusCode": 406,
             "body": json.dumps({'Message': 'Product not found'})
         }
 
