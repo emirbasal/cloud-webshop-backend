@@ -21,28 +21,28 @@ provider:
 
 functions:
   create-product:
-    handler: functions/product/create_product.create_product
+    handler: src/functions/product/create_product.create_product
     events:
       - http:
           path: api/products
           method: post
           cors: true
   list-products:
-    handler: functions/product/list_products.list_products
+    handler: src/functions/product/list_products.list_products
     events:
       - http:
           path: api/products
           method: get
           cors: true
   get-product:
-    handler: functions/product/get_product.get_product
+    handler: src/functions/product/get_product.get_product
     events:
       - http:
           path: api/products/{id}
           method: get
           cors: true
   delete-product:
-    handler: functions/product/delete_product.delete_product
+    handler: src/functions/product/delete_product.delete_product
     events:
       - http:
           path: api/products/{id}

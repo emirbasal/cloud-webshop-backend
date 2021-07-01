@@ -1,6 +1,6 @@
 import json
-from functions import decimalencoder
-from persistence import db_service
+from src.functions import decimalencoder
+from src.persistence import db_service
 
 
 def list_products(event, context):

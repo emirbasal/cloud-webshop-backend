@@ -3,8 +3,8 @@ import logging
 import time
 import uuid
 from decimal import Decimal
-from functions import decimalencoder
-from persistence import db_service
+from src.functions import decimalencoder
+from src.persistence import db_service
 
 
 def create_product(event, context):

@@ -1,6 +1,6 @@
 import json
-from functions.product.get_product import does_product_exist
-from persistence import db_service
+from src.functions.product.get_product import does_product_exist
+from src.persistence import db_service
 
 
 def delete_product(event, context):
