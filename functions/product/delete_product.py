@@ -1,5 +1,5 @@
 import json
-from functions.get_product import does_product_exist
+from functions.product.get_product import does_product_exist
 from persistence import db_service
 
 

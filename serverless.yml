@@ -5,7 +5,6 @@ custom:
 
 provider:
   name: aws
-  stage: prod
   runtime: python3.8
   environment:
     PRODUCTS_TABLE: ${self:custom.productsTableName}
@@ -21,32 +20,29 @@ provider:
       Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.PRODUCTS_TABLE}"
 
 functions:
-  create:
-    handler: functions/create_product.create_product
+  create-product:
+    handler: functions/product/create_product.create_product
     events:
       - http:
           path: api/products
           method: post
           cors: true
-
-  list:
-    handler: functions/list_products.list_products
+  list-products:
+    handler: functions/product/list_products.list_products
     events:
       - http:
           path: api/products
           method: get
           cors: true
-
-  get:
-    handler: functions/get_product.get_product
+  get-product:
+    handler: functions/product/get_product.get_product
     events:
       - http:
           path: api/products/{id}
           method: get
           cors: true
-
-  delete:
-    handler: functions/delete_product.delete_product
+  delete-product:
+    handler: functions/product/delete_product.delete_product
     events:
       - http:
           path: api/products/{id}
