@@ -1,0 +1,73 @@
+service: webshop
+
+custom:
+  productsTableName: 'products-${self:provider.stage}'
+
+provider:
+  name: aws
+  stage: prod
+  runtime: python3.8
+  environment:
+    PRODUCTS_TABLE: ${self:custom.productsTableName}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.PRODUCTS_TABLE}"
+
+functions:
+  create:
+    handler: functions/create_product.create_product
+    events:
+      - http:
+          path: api/products
+          method: post
+          cors: true
+
+  list:
+    handler: functions/list_products.list_products
+    events:
+      - http:
+          path: api/products
+          method: get
+          cors: true
+
+  get:
+    handler: functions/get_product.get_product
+    events:
+      - http:
+          path: api/products/{id}
+          method: get
+          cors: true
+
+  delete:
+    handler: functions/delete_product.delete_product
+    events:
+      - http:
+          path: api/products/{id}
+          method: delete
+          cors: true
+
+resources:
+  Resources:
+    ProductsDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.PRODUCTS_TABLE}
