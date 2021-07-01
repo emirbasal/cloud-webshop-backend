@@ -8,6 +8,12 @@ stages:
   - Static Analysis
   - Test
 
+mypy:
+  stage: Static Analysis
+  script:
+  - python -m mypy --ignore-missing-imports src/
+
+
 flake8:
   stage: Static Analysis
   script:
