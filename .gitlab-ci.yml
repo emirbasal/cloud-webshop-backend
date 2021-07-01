@@ -17,4 +17,4 @@ pylint:
   stage: Static Analysis
   allow_failure: true
   script:
-  - pylint -d C0301 src/
+  - pylint -d C0301 --errors-only --disable E0401 src/
