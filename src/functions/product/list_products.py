@@ -5,7 +5,6 @@ from src.persistence import db_service
 
 def list_products(event, context):
     table = db_service.get_products_table()
-
     result = table.scan()
 
     if 'Items' in result:

@@ -3,6 +3,10 @@ service: webshop
 custom:
   productsTableName: 'products-${self:provider.stage}'
   ordersTableName: 'orders-${self:provider.stage}'
+  accountId: !Ref AWS::AccountId
+
+plugins:
+  - serverless-offline-python
 
 provider:
   name: aws
@@ -10,6 +14,11 @@ provider:
   environment:
     PRODUCTS_TABLE: ${self:custom.productsTableName}
     ORDERS_TABLE: ${self:custom.ordersTableName}
+    REGION: ${self:provider.region}
+    STAGE: ${self:provider.stage}
+    SERVICE: ${self:service}
+    ACCOUNT_ID: ${self:custom.accountId}
+
   iamRoleStatements:
     - Effect: Allow
       Action:

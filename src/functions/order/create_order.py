@@ -2,12 +2,16 @@ import json
 import logging
 import time
 import uuid
+import logging
 from decimal import Decimal
-from src.functions import decimalencoder
+from src.functions import decimalencoder, lambda_helper
 from src.persistence import db_service
 
 
+
 def create_order(event, context):
+    arn = lambda_helper.get_arn('create-order')
+
     data = json.loads(event['body'])
     if 'amount' not in data or 'currency' not in data or 'items' not in data or 'email' not in data \
             or 'status' not in data or 'cardNumber' not in data:
