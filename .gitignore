@@ -3,4 +3,6 @@ venv
 .serverless
 *.pyc
 *.pyo
-
+node_modules
+package-lock.json
+package.json
