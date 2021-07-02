@@ -2,7 +2,6 @@ import json
 import logging
 import time
 import uuid
-import logging
 from decimal import Decimal
 from src.functions import decimalencoder, lambda_helper
 from src.persistence import db_service
