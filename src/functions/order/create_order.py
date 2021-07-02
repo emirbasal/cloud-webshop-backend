@@ -2,20 +2,20 @@ import json
 import logging
 import time
 import uuid
+import boto3
 from decimal import Decimal
 from src.functions import decimalencoder, lambda_helper
 from src.persistence import db_service
 
+client = boto3.client('lambda')
+
 
 def create_order(event, context):
-    arn = lambda_helper.get_arn('create-order')
-    logging.warning(arn)
 
     data = json.loads(event['body'])
-    if 'amount' not in data or 'currency' not in data or 'items' not in data or 'email' not in data \
-            or 'status' not in data or 'cardNumber' not in data:
+    logging.warning(data)
+    if not is_data_valid(data):
         logging.error("Validation Failed. Attribute(s) are missing. Couldn't create the order.")
-
         response = {
             "statusCode": 400,
             "body": json.dumps(
@@ -24,6 +24,14 @@ def create_order(event, context):
         }
         return response
 
+    arn = lambda_helper.get_arn('payment')
+    logging.warning(arn)
+    test_response = client.invoke(
+        FunctionName=arn,
+        InvocationType='RequestResponse',
+        Payload=json.dumps(json.loads(event['body']))
+    )
+
     timestamp = str(time.time())
     table = db_service.get_orders_table()
 
@@ -31,6 +39,7 @@ def create_order(event, context):
         'id': str(uuid.uuid1()),
         'amount': Decimal(str(data['amount'])),
         'currency': data['currency'],
+        'invoice:': 'invoice',
         'items': data['items'],
         'email': data['email'],
         'status': data['status'],
@@ -47,3 +56,8 @@ def create_order(event, context):
     }
 
     return response
+
+
+def is_data_valid(data):
+
+    return False

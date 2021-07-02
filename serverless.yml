@@ -6,7 +6,7 @@ custom:
   accountId: !Ref AWS::AccountId
 
 plugins:
-  - serverless-offline-python
+  - serverless-offline
 
 provider:
   name: aws
@@ -31,6 +31,11 @@ provider:
       Resource:
         - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.PRODUCTS_TABLE}"
         - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.ORDERS_TABLE}"
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+        - lambda:InvokeAsync
+      Resource: "*"
 
 functions:
   create-product:
@@ -90,7 +95,8 @@ functions:
           path: api/orders/{id}
           method: delete
           cors: true
-
+  payment:
+    handler: src/functions/order/payment.payment
 
 resources:
   Resources:
