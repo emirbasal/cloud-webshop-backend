@@ -8,9 +8,9 @@ from src.functions import decimalencoder, lambda_helper
 from src.persistence import db_service
 
 
-
 def create_order(event, context):
     arn = lambda_helper.get_arn('create-order')
+    logging.warning(arn)
 
     data = json.loads(event['body'])
     if 'amount' not in data or 'currency' not in data or 'items' not in data or 'email' not in data \
