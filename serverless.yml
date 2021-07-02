@@ -4,9 +4,12 @@ custom:
   productsTableName: 'products-${self:provider.stage}'
   ordersTableName: 'orders-${self:provider.stage}'
   accountId: !Ref AWS::AccountId
+  pythonRequirements:
+    dockerizePip: non-linux
 
 plugins:
   - serverless-offline
+  - serverless-python-requirements
 
 provider:
   name: aws
@@ -18,6 +21,8 @@ provider:
     STAGE: ${self:provider.stage}
     SERVICE: ${self:service}
     ACCOUNT_ID: ${self:custom.accountId}
+    PAYMENT_API: 'https://c4.ebke.hmcloudlabs.de/payment'
+    API_KEY: 'YfPE0IdT0HL0'
 
   iamRoleStatements:
     - Effect: Allow
