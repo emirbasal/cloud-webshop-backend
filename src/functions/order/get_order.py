@@ -6,12 +6,12 @@ from src.persistence import db_service
 def get_order(event, context):
     table = db_service.get_orders_table()
 
-    order_exists, result = db_service.does_item_exist(event, table)
+    order_exists, order = db_service.does_item_exist(event, table)
 
     if order_exists:
         response = {
             "statusCode": 200,
-            "body": json.dumps(result['Item'],
+            "body": json.dumps(order,
                                cls=decimalencoder.DecimalEncoder)
         }
     else:

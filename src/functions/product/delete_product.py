@@ -14,7 +14,8 @@ def delete_product(event, context):
             }
         )
         response = {
-            "statusCode": 200
+            "statusCode": 200,
+            "body": json.dumps({'Message': 'Successfully deleted product.'})
         }
     else:
         response = {

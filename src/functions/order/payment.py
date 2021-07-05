@@ -1,25 +1,21 @@
 import json
 import logging
-import os
-import requests
-import time
-import uuid
-from decimal import Decimal
-from src.functions import decimalencoder, lambda_helper
-from src.persistence import db_service
+from src.functions import lambda_helper
+import urllib3
+
 
 
 def payment(event, context):
+    payment_endpoint, header = lambda_helper.get_payment_api()
 
-    # data = json.loads(event)
+    http = urllib3.PoolManager()
+    response = http.request('POST', payment_endpoint, body=json.dumps(event), headers=header, retries=False)
 
-    logging.warning(event)
+    if response.status != 200:
+        logging.error("Could not get payment information from payment API")
+        #TODO: RETRY
 
-    url = os.environ('PAYMENT_API')
-    headers = {'Content-type': 'application/json', 'api_key': os.environ('API_KEY')}
-    response = requests.post(url, data=json.dumps(event), headers=headers)
-
-    logging.warning('---------------')
-    logging.warning(response)
-
+    logging.warning('Rechnung wurde erfolgreich erhalten')
+    logging.warning(json.loads(response.data))
+    response = json.loads(response.data)
     return response

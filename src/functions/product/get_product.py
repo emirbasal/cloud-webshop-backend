@@ -11,7 +11,7 @@ def get_product(event, context):
     if product_exists:
         response = {
             "statusCode": 200,
-            "body": json.dumps(result['Item'],
+            "body": json.dumps(result,
                                cls=decimalencoder.DecimalEncoder)
         }
 

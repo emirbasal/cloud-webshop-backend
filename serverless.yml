@@ -1,15 +1,26 @@
 service: webshop
 
+#package:
+#  individually: true
+#  patterns:
+#    - '!venv/**'
+#    - '!.serverless/**'
+#    - '!.node_modules/**'
+#    - '!package-lock.json'
+#    - '!.gitlab-ci.yml'
+#    - '!.gitignore'
+#    - 'src/**'
+
 custom:
   productsTableName: 'products-${self:provider.stage}'
   ordersTableName: 'orders-${self:provider.stage}'
   accountId: !Ref AWS::AccountId
-  pythonRequirements:
-    dockerizePip: non-linux
+#  pythonRequirements:
+#    dockerizePip: non-linux
 
 plugins:
   - serverless-offline
-  - serverless-python-requirements
+#  - serverless-python-requirements
 
 provider:
   name: aws
@@ -22,7 +33,7 @@ provider:
     SERVICE: ${self:service}
     ACCOUNT_ID: ${self:custom.accountId}
     PAYMENT_API: 'https://c4.ebke.hmcloudlabs.de/payment'
-    API_KEY: 'YfPE0IdT0HL0'
+    PAYMENT_API_KEY: 'YfPE0IdT0HL0'
 
   iamRoleStatements:
     - Effect: Allow
@@ -40,6 +51,7 @@ provider:
       Action:
         - lambda:InvokeFunction
         - lambda:InvokeAsync
+      #TODO: CHANGE
       Resource: "*"
 
 functions:
@@ -102,6 +114,13 @@ functions:
           cors: true
   payment:
     handler: src/functions/order/payment.payment
+  get_invoice:
+    handler: src/functions/order/get_invoice.get_invoice
+    events:
+      - http:
+          path: api/orders/invoice/{id}
+          method: get
+          cors: true
 
 resources:
   Resources:

@@ -12,8 +12,8 @@ client = boto3.client('lambda')
 
 def create_order(event, context):
 
-    data = json.loads(event['body'])
-    if not is_data_valid(data):
+    order = json.loads(event['body'])
+    if not is_data_valid(order):
         logging.error("Validation Failed. Attribute(s) are missing and/or are Empty. Couldn't create the order.")
         response = {
             "statusCode": 400,
@@ -24,34 +24,25 @@ def create_order(event, context):
         return response
 
     new_id = str(uuid.uuid1())
-    data["id"] = new_id
+    order["id"] = new_id
     arn = lambda_helper.get_arn('payment')
-    test_response = client.invoke(
+    response = client.invoke(
         FunctionName=arn,
         InvocationType='RequestResponse',
-        Payload=json.dumps(data)
+        Payload=json.dumps(order)
     )
+    payload = response['Payload']
+    data = payload.read()
 
-    timestamp = str(time.time())
+    order = json.loads(data)
+    order['createdAt'] = str(time.time())
     table = db_service.get_orders_table()
 
-    item = {
-        'id': new_id,
-        'amount': Decimal(str(data['amount'])),
-        'currency': data['currency'],
-        'invoice:': 'invoice',
-        'items': data['items'],
-        'email': data['email'],
-        'status': data['status'],
-        'cardNumber': data['card']['number'],
-        'createdAt': timestamp,
-    }
-
-    table.put_item(Item=item)
+    table.put_item(Item=order)
 
     response = {
         "statusCode": 200,
-        "body": json.dumps(item,
+        "body": json.dumps(order,
                            cls=decimalencoder.DecimalEncoder)
     }
 

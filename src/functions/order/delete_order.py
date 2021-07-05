@@ -14,12 +14,13 @@ def delete_order(event, context):
             }
         )
         response = {
-            "statusCode": 200
+            "statusCode": 200,
+            "body": json.dumps({'Message': 'Successfully deleted order.'})
         }
     else:
         response = {
             "statusCode": 406,
-            "body": json.dumps({'Message': 'Order does not exists. Order not found'})
+            "body": json.dumps({'Message': 'Order does not exists. Order not found.'})
         }
 
     return response
