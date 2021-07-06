@@ -1,5 +1,4 @@
 import os
-#MAYBE IN ORDER PACKAGE VERSCHIEBEN
 
 
 def get_arn(function_name):

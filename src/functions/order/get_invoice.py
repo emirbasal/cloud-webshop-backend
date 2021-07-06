@@ -24,8 +24,8 @@ def get_invoice(event, context):
         if order['status'] != 'accepted':
             response = {
                 "statusCode": 400,
-                "body":
-                    json.dumps({'Message': 'The payment method was declined. Pleas try again with a valid credit card!'})
+                "body": json.dumps({'Message': 'The payment method was declined. Pleas try again with a valid credit '
+                                               'card!'})
             }
             set_status_and_invoice(order_id, 'declined', None)
 
