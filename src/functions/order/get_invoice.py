@@ -1,12 +1,15 @@
 import urllib3
 import json
 import logging
-from src.functions import lambda_helper
+from src.functions.helper import lambda_helper
 from src.persistence import db_service
 
 
+table = db_service.get_orders_table()
+
+
 def get_invoice(event, context):
-    table = db_service.get_orders_table()
+    # table = db_service.get_orders_table()
     order_exists, order = db_service.does_item_exist(event, table)
 
     if order_exists:
@@ -16,14 +19,21 @@ def get_invoice(event, context):
 
         url = f"{payment_endpoint}/{order_id}"
         response = http.request('GET', url, headers=header, retries=False)
-
+        logging.warning(response.data)
         order = json.loads(response.data)
         if order['status'] != 'accepted':
-            logging.error("There was an error creating this order. You have to order the items again!")
+            response = {
+                "statusCode": 400,
+                "body":
+                    json.dumps({'Message': 'The payment method was declined. Pleas try again with a valid credit card!'})
+            }
+            set_status_and_invoice(order_id, 'declined', None)
 
-        table = db_service.get_orders_table()
-        table.put_item(Item=order)
-        logging.info(f'Order with ID {order["id"]} was updated!')
+            return response
+
+        # table.put_item(Item=order)
+        set_status_and_invoice(order_id, 'accepted', order["invoice"])
+        logging.info(f'Order with ID {order_id} was updated!')
 
         response = {
             "statusCode": 200,
@@ -36,3 +46,20 @@ def get_invoice(event, context):
         }
 
     return response
+
+
+def set_status_and_invoice(order_id, status, invoice):
+    table.update_item(
+        Key={
+            'id': order_id
+        },
+        UpdateExpression='SET #st = :s, #in = :i',
+        ExpressionAttributeValues={
+            ":s": status,
+            ":i": invoice,
+        },
+        ExpressionAttributeNames={
+            "#st": "status",
+            "#in": "invoice"
+        }
+    )

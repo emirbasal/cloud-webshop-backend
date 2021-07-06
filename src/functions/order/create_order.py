@@ -1,10 +1,8 @@
 import json
-import logging
 import time
 import uuid
 import boto3
-from decimal import Decimal
-from src.functions import decimalencoder, lambda_helper
+from src.functions.helper import lambda_helper, decimalencoder
 from src.persistence import db_service
 
 client = boto3.client('lambda')
@@ -14,7 +12,6 @@ def create_order(event, context):
 
     order = json.loads(event['body'])
     if not is_data_valid(order):
-        logging.error("Validation Failed. Attribute(s) are missing and/or are Empty. Couldn't create the order.")
         response = {
             "statusCode": 400,
             "body": json.dumps(
@@ -26,12 +23,23 @@ def create_order(event, context):
     new_id = str(uuid.uuid1())
     order["id"] = new_id
     arn = lambda_helper.get_arn('payment')
-    response = client.invoke(
+    payment_response = client.invoke(
         FunctionName=arn,
         InvocationType='RequestResponse',
         Payload=json.dumps(order)
     )
-    payload = response['Payload']
+    # logging.warning(payment_response)
+
+    if payment_response['StatusCode'] != 200:
+        response = {
+            "statusCode": 400,
+            "body": json.dumps(
+                {"message": "Error from Payment-API. Please try again"}
+            )
+        }
+        return response
+
+    payload = payment_response['Payload']
     data = payload.read()
 
     order = json.loads(data)
