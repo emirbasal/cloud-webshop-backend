@@ -1,4 +1,4 @@
-service: webshop
+service: webshop-backend
 
 package:
   individually: true
@@ -26,8 +26,8 @@ package:
 #    - 'src/**'
 
 custom:
-  productsTableName: 'products-${self:provider.stage}'
-  ordersTableName: 'orders-${self:provider.stage}'
+  productsTableName: 'webshop-products-${self:provider.stage}'
+  ordersTableName: 'webshop-orders-${self:provider.stage}'
   accountId: !Ref AWS::AccountId
 #  pythonRequirements:
 #    dockerizePip: non-linux
