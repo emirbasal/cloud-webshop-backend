@@ -3,7 +3,6 @@ service: webshop-backend
 package:
   individually: true
   exclude:
-#    - "**/*"  # quotes(") are needed
     - 'venv/**'
     - '.serverless/**'
     - '.idea/**'
@@ -15,15 +14,6 @@ package:
   include:
     - src/persistence/**
     - src/functions/helper/**
-
-#  patterns:
-#    - '!venv/**'
-#    - '!.serverless/**'
-#    - '!.node_modules/**'
-#    - '!package-lock.json'
-#    - '!.gitlab-ci.yml'
-#    - '!.gitignore'
-#    - 'src/**'
 
 custom:
   productsTableName: 'webshop-products-${self:provider.stage}'
