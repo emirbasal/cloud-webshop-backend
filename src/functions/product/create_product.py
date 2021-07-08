@@ -4,6 +4,7 @@ import time
 import uuid
 from decimal import Decimal
 from src.functions.helper import decimalencoder
+from src.functions.helper.Response import Response
 from src.persistence import db_service
 
 
@@ -14,13 +15,10 @@ def create_product(event, context):
             'image' not in data:
         logging.error("Validation Failed. Attribute(s) are missing. Couldn't create the product.")
 
-        response = {
-            "statusCode": 400,
-            "body": json.dumps(
-                {"message": "Validation Failed. Attribute(s) are missing. Couldn't create the product."}
-            )
-        }
-        return response
+        response = Response(statusCode=400, body=json.dumps(
+            {"message": "Validation Failed. Attribute(s) are missing. Couldn't create the product."}))
+
+        return response.to_json()
 
     timestamp = str(time.time())
     table = db_service.get_products_table()
@@ -37,11 +35,6 @@ def create_product(event, context):
     }
 
     table.put_item(Item=item)
+    response = Response(statusCode=200, body=json.dumps(item, cls=decimalencoder.DecimalEncoder))
 
-    response = {
-        "statusCode": 200,
-        "body": json.dumps(item,
-                           cls=decimalencoder.DecimalEncoder)
-    }
-
-    return response
+    return response.to_json()

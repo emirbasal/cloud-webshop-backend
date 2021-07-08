@@ -1,4 +1,6 @@
 import json
+
+from src.functions.helper.Response import Response
 from src.persistence import db_service
 
 
@@ -13,14 +15,9 @@ def delete_product(event, context):
                 'id': event['pathParameters']['id']
             }
         )
-        response = {
-            "statusCode": 200,
-            "body": json.dumps({'Message': 'Successfully deleted product.'})
-        }
-    else:
-        response = {
-            "statusCode": 406,
-            "body": json.dumps({'Message': 'Product does not exists. Product not found'})
-        }
 
-    return response
+        response = Response(statusCode=200, body=json.dumps({'Message': 'Successfully deleted product.'}))
+    else:
+        response = Response(statusCode=404, body=json.dumps({'Message': 'Product does not exists. Product not found'}))
+
+    return response.to_json()
