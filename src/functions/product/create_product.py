@@ -8,7 +8,7 @@ from src.functions.helper.Response import Response
 from src.persistence import db_service
 
 
-#TODO: Input validation
+# TODO: Input validation
 def create_product(event, context):
     data = json.loads(event['body'])
     if 'name' not in data or 'description' not in data or 'currency' not in data or 'amount' not in data or \

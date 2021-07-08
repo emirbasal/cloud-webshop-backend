@@ -1,5 +1,5 @@
 import json
-from src.functions.helper import decimalencoder, lambda_helper
+from src.functions.helper import decimalencoder
 from src.functions.helper.Response import Response
 from src.persistence import db_service
 
