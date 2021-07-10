@@ -23,8 +23,8 @@ def get_invoice(event, context):
 
         order = json.loads(response.data)
         if order['status'] != 'accepted':
-            response = Response(statusCode=400, body=json.dumps(
-                {'Message': 'The payment method was declined. Pleas try again with a valid credit card!'}))
+            response = Response(statusCode=400, body={'Message': 'The payment method was declined. Pleas try again '
+                                                                 'with a valid credit card!'})
 
             set_status_and_invoice(order_id, 'declined', None)
 
@@ -32,9 +32,9 @@ def get_invoice(event, context):
 
         set_status_and_invoice(order_id, 'accepted', order["invoice"])
 
-        response = Response(statusCode=200, body=json.dumps(order))
+        response = Response(statusCode=200, body=order)
     else:
-        response = Response(statusCode=404, body=json.dumps({'Message': 'Order not found!'}))
+        response = Response(statusCode=404, body={'Message': 'Order not found!'})
 
     return response.to_json()
 

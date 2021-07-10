@@ -2,7 +2,7 @@ import json
 import time
 import uuid
 import boto3
-from src.functions.helper import lambda_helper, decimalencoder
+from src.functions.helper import lambda_helper
 from src.functions.helper.Response import Response
 from src.persistence import db_service
 
@@ -14,8 +14,8 @@ def create_order(event, context):
 
     order = json.loads(event['body'])
     if not is_data_valid(order):
-        response = Response(statusCode=400, body=json.dumps(
-                {"message": "Validation Failed. Attribute(s) are missing. Couldn't create the order."}))
+        response = Response(statusCode=400, body={"message": "Validation Failed. Attribute(s) are missing. Couldn't "
+                                                             "create the order."})
 
         return response.to_json()
 
@@ -30,7 +30,7 @@ def create_order(event, context):
     # logging.warning(payment_response)
 
     if payment_response['StatusCode'] != 200:
-        response = Response(statusCode=400, body=json.dumps({"message": "Error from Payment-API. Please try again"}))
+        response = Response(statusCode=400, body={"message": "Error from Payment-API. Please try again"})
 
         return response.to_json()
 
@@ -42,7 +42,7 @@ def create_order(event, context):
     table = db_service.get_orders_table()
 
     table.put_item(Item=order)
-    response = Response(statusCode=200, body=json.dumps(order, cls=decimalencoder.DecimalEncoder))
+    response = Response(statusCode=200, body=order)
 
     return response.to_json()
 

@@ -29,6 +29,11 @@ plugins:
 provider:
   name: aws
   runtime: python3.8
+  timeout: 30
+  memorySize: 2048
+  tracing:
+    apiGateway: true
+    lambda: true
   environment:
     PRODUCTS_TABLE: ${self:custom.productsTableName}
     ORDERS_TABLE: ${self:custom.ordersTableName}
@@ -56,6 +61,11 @@ provider:
         - lambda:InvokeFunction
         - lambda:InvokeAsync
       #TODO: CHANGE
+      Resource: "*"
+    - Effect: Allow
+      Action:
+        - xray:PutTraceSegments
+        - xray:PutTelemetryRecords
       Resource: "*"
 
 functions:
@@ -163,7 +173,6 @@ functions:
     package:
       include:
         - src/functions/order/get_invoice.py
-
 
 resources:
   Resources:

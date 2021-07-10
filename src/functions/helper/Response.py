@@ -1,7 +1,10 @@
+import json
+from src.functions.helper import decimalencoder
 
 preset_headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Credentials': 'true',
+    'Content-Type': 'application/json'
     }
 
 
@@ -13,8 +16,9 @@ class Response:
         self.body = body
 
     def to_json(self):
-        return {
-            'headers': self.headers,
+        response = {
+            "headers": self.headers,
             "statusCode":  self.statusCode,
-            "body": self.body
+            "body": json.dumps(self.body, cls=decimalencoder.DecimalEncoder)
         }
+        return response

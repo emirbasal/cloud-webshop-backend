@@ -16,7 +16,3 @@ def get_payment_api():
     headers = {'Content-type': 'application/json', 'api_key': api_key}
 
     return payment_endpoint, headers
-
-
-def get_response_header():
-    return {"Access-Control-Allow-Origin": "*"}
