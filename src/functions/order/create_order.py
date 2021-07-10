@@ -18,6 +18,7 @@ def create_order(event, context):
                                                              "create the order."})
 
         return response.to_json()
+    items = order['items']
 
     new_id = str(uuid.uuid1())
     order["id"] = new_id
@@ -39,6 +40,7 @@ def create_order(event, context):
 
     order = json.loads(data)
     order['createdAt'] = str(time.time())
+    order['items'] = items
     table = db_service.get_orders_table()
 
     table.put_item(Item=order)

@@ -5,7 +5,6 @@ from src.functions.helper import lambda_helper
 from src.functions.helper.Response import Response
 from src.persistence import db_service
 
-
 table = db_service.get_orders_table()
 
 
@@ -18,11 +17,10 @@ def get_invoice(event, context):
         order_id = order['id']
 
         url = f"{payment_endpoint}/{order_id}"
-        response = http.request('GET', url, headers=header, retries=False)
-        logging.warning(response.data)
+        response_from_api = http.request('GET', url, headers=header, retries=False)
 
-        order = json.loads(response.data)
-        if order['status'] != 'accepted':
+        order_from_api = json.loads(response_from_api.data)
+        if order_from_api['status'] != 'accepted':
             response = Response(statusCode=400, body={'Message': 'The payment method was declined. Pleas try again '
                                                                  'with a valid credit card!'})
 
@@ -30,8 +28,12 @@ def get_invoice(event, context):
 
             return response.to_json()
 
-        set_status_and_invoice(order_id, 'accepted', order["invoice"])
+        set_status_and_invoice(order_id, 'accepted', order_from_api['invoice'])
 
+        # Additionally changing order object to return to frontend
+        order['status'] = 'accepted'
+        order['invoice'] = order_from_api['invoice']
+        logging.warning(order)
         response = Response(statusCode=200, body=order)
     else:
         response = Response(statusCode=404, body={'Message': 'Order not found!'})
