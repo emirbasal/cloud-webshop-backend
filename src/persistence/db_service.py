@@ -22,6 +22,6 @@ def does_item_exist(event, table):
 
     # result is a dict
     if 'Item' in result:
-        return True, result
+        return True, result['Item']
     else:
         return False, result

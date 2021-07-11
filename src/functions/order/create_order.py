@@ -1,49 +1,60 @@
 import json
-import logging
 import time
 import uuid
-from decimal import Decimal
-from src.functions import decimalencoder, lambda_helper
+import boto3
+from src.functions.helper import lambda_helper
+from src.functions.helper.Response import Response
 from src.persistence import db_service
 
 
+client = boto3.client('lambda')
+
+
 def create_order(event, context):
-    arn = lambda_helper.get_arn('create-order')
-    logging.warning(arn)
 
-    data = json.loads(event['body'])
-    if 'amount' not in data or 'currency' not in data or 'items' not in data or 'email' not in data \
-            or 'status' not in data or 'cardNumber' not in data:
-        logging.error("Validation Failed. Attribute(s) are missing. Couldn't create the order.")
+    order = json.loads(event['body'])
+    if not is_data_valid(order):
+        response = Response(statusCode=400, body={"message": "Validation Failed. Attribute(s) are missing. Couldn't "
+                                                             "create the order."})
 
-        response = {
-            "statusCode": 400,
-            "body": json.dumps(
-                {"message": "Validation Failed. Attribute(s) are missing. Couldn't create the order."}
-            )
-        }
-        return response
+        return response.to_json()
+    items = order['items']
 
-    timestamp = str(time.time())
+    new_id = str(uuid.uuid1())
+    order["id"] = new_id
+    arn = lambda_helper.get_arn('payment')
+    payment_response = client.invoke(
+        FunctionName=arn,
+        InvocationType='RequestResponse',
+        Payload=json.dumps(order)
+    )
+    # logging.warning(payment_response)
+
+    if payment_response['StatusCode'] != 200:
+        response = Response(statusCode=400, body={"message": "Error from Payment-API. Please try again"})
+
+        return response.to_json()
+
+    payload = payment_response['Payload']
+    data = payload.read()
+
+    order = json.loads(data)
+    order['createdAt'] = str(time.time())
+    order['items'] = items
     table = db_service.get_orders_table()
 
-    item = {
-        'id': str(uuid.uuid1()),
-        'amount': Decimal(str(data['amount'])),
-        'currency': data['currency'],
-        'items': data['items'],
-        'email': data['email'],
-        'status': data['status'],
-        'cardNumber': data['cardNumber'],
-        'createdAt': timestamp,
-    }
+    table.put_item(Item=order)
+    response = Response(statusCode=200, body=order)
 
-    table.put_item(Item=item)
+    return response.to_json()
 
-    response = {
-        "statusCode": 200,
-        "body": json.dumps(item,
-                           cls=decimalencoder.DecimalEncoder)
-    }
 
-    return response
+def is_data_valid(data):
+    if ('amount' in data and 'currency' in data and 'email' in data
+            and 'items' in data and 'status' in data and 'card' in data):
+
+        if (data['amount'] and data['currency'] and data['email'] and data['items']
+                and data['status'] and data['card']['number']):
+
+            return True
+    return False

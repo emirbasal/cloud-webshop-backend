@@ -1,23 +1,14 @@
-import json
-from src.functions import decimalencoder
+from src.functions.helper.Response import Response
 from src.persistence import db_service
 
 
 def get_order(event, context):
     table = db_service.get_orders_table()
-
-    order_exists, result = db_service.does_item_exist(event, table)
+    order_exists, order = db_service.does_item_exist(event, table)
 
     if order_exists:
-        response = {
-            "statusCode": 200,
-            "body": json.dumps(result['Item'],
-                               cls=decimalencoder.DecimalEncoder)
-        }
+        response = Response(statusCode=200, body=order)
     else:
-        response = {
-            "statusCode": 406,
-            "body": json.dumps({'Message': 'Order not found'})
-        }
+        response = Response(statusCode=404, body={'Message': 'Order not found'})
 
-    return response
+    return response.to_json()

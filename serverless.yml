@@ -1,16 +1,39 @@
-service: webshop
+service: webshop-backend
+
+package:
+  individually: true
+  exclude:
+    - 'venv/**'
+    - '.serverless/**'
+    - '.idea/**'
+    - 'node_modules/**'
+    - 'package-lock.json'
+    - '.gitlab-ci.yml'
+    - '.gitignore'
+    - 'src/**'
+  include:
+    - src/persistence/**
+    - src/functions/helper/**
 
 custom:
-  productsTableName: 'products-${self:provider.stage}'
-  ordersTableName: 'orders-${self:provider.stage}'
+  productsTableName: 'webshop-products-${self:provider.stage}'
+  ordersTableName: 'webshop-orders-${self:provider.stage}'
   accountId: !Ref AWS::AccountId
+#  pythonRequirements:
+#    dockerizePip: non-linux
 
 plugins:
-  - serverless-offline-python
+  - serverless-offline
+#  - serverless-python-requirements
 
 provider:
   name: aws
   runtime: python3.8
+  timeout: 30
+  memorySize: 2048
+  tracing:
+    apiGateway: true
+    lambda: true
   environment:
     PRODUCTS_TABLE: ${self:custom.productsTableName}
     ORDERS_TABLE: ${self:custom.ordersTableName}
@@ -18,6 +41,8 @@ provider:
     STAGE: ${self:provider.stage}
     SERVICE: ${self:service}
     ACCOUNT_ID: ${self:custom.accountId}
+    PAYMENT_API: 'https://c4.ebke.hmcloudlabs.de/payment'
+    PAYMENT_API_KEY: 'YfPE0IdT0HL0'
 
   iamRoleStatements:
     - Effect: Allow
@@ -31,6 +56,17 @@ provider:
       Resource:
         - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.PRODUCTS_TABLE}"
         - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.ORDERS_TABLE}"
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+        - lambda:InvokeAsync
+      #TODO: CHANGE
+      Resource: "*"
+    - Effect: Allow
+      Action:
+        - xray:PutTraceSegments
+        - xray:PutTelemetryRecords
+      Resource: "*"
 
 functions:
   create-product:
@@ -40,6 +76,10 @@ functions:
           path: api/products
           method: post
           cors: true
+    package:
+      include:
+        - src/functions/product/create_product.py
+
   list-products:
     handler: src/functions/product/list_products.list_products
     events:
@@ -47,6 +87,10 @@ functions:
           path: api/products
           method: get
           cors: true
+    package:
+      include:
+        - src/functions/product/list_products.py
+
   get-product:
     handler: src/functions/product/get_product.get_product
     events:
@@ -54,6 +98,10 @@ functions:
           path: api/products/{id}
           method: get
           cors: true
+    package:
+      include:
+        - src/functions/product/get_product.py
+
   delete-product:
     handler: src/functions/product/delete_product.delete_product
     events:
@@ -61,6 +109,9 @@ functions:
           path: api/products/{id}
           method: delete
           cors: true
+    package:
+      include:
+        - src/functions/product/delete_product.py
 
   create-order:
     handler: src/functions/order/create_order.create_order
@@ -69,6 +120,10 @@ functions:
           path: api/orders
           method: post
           cors: true
+    package:
+      include:
+        - src/functions/order/create_order.py
+
   list-orders:
     handler: src/functions/order/list_orders.list_orders
     events:
@@ -76,6 +131,10 @@ functions:
           path: api/orders
           method: get
           cors: true
+    package:
+      include:
+        - src/functions/order/list_orders.py
+
   get-order:
     handler: src/functions/order/get_order.get_order
     events:
@@ -83,6 +142,10 @@ functions:
           path: api/orders/{id}
           method: get
           cors: true
+    package:
+      include:
+        - src/functions/order/get_order.py
+
   delete-order:
     handler: src/functions/order/delete_order.delete_order
     events:
@@ -90,7 +153,26 @@ functions:
           path: api/orders/{id}
           method: delete
           cors: true
+    package:
+      include:
+        - src/functions/order/delete_order.py
 
+  payment:
+    handler: src/functions/order/payment.payment
+    package:
+      include:
+        - src/functions/order/payment.py
+
+  get_invoice:
+    handler: src/functions/order/get_invoice.get_invoice
+    events:
+      - http:
+          path: api/orders/invoice/{id}
+          method: get
+          cors: true
+    package:
+      include:
+        - src/functions/order/get_invoice.py
 
 resources:
   Resources:
