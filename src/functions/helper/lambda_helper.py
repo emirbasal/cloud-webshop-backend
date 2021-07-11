@@ -16,3 +16,4 @@ def get_payment_api():
     headers = {'Content-type': 'application/json', 'api_key': api_key}
 
     return payment_endpoint, headers
+

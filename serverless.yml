@@ -18,13 +18,14 @@ package:
 custom:
   productsTableName: 'webshop-products-${self:provider.stage}'
   ordersTableName: 'webshop-orders-${self:provider.stage}'
+  usersTableName: 'webshop-users-${self:provider.stage}'
   accountId: !Ref AWS::AccountId
-#  pythonRequirements:
-#    dockerizePip: non-linux
+  pythonRequirements:
+    dockerizePip: true
 
 plugins:
   - serverless-offline
-#  - serverless-python-requirements
+  - serverless-python-requirements
 
 provider:
   name: aws
@@ -37,12 +38,15 @@ provider:
   environment:
     PRODUCTS_TABLE: ${self:custom.productsTableName}
     ORDERS_TABLE: ${self:custom.ordersTableName}
+    USERS_TABLE: ${self:custom.usersTableName}
     REGION: ${self:provider.region}
     STAGE: ${self:provider.stage}
     SERVICE: ${self:service}
     ACCOUNT_ID: ${self:custom.accountId}
     PAYMENT_API: 'https://c4.ebke.hmcloudlabs.de/payment'
     PAYMENT_API_KEY: 'YfPE0IdT0HL0'
+    JWT_SECRET: 'secret'
+    JWT_ALGORITHM: 'HS256'
 
   iamRoleStatements:
     - Effect: Allow
@@ -56,6 +60,11 @@ provider:
       Resource:
         - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.PRODUCTS_TABLE}"
         - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.ORDERS_TABLE}"
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+      Resource:
+        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.USERS_TABLE}"
     - Effect: Allow
       Action:
         - lambda:InvokeFunction
@@ -174,6 +183,29 @@ functions:
       include:
         - src/functions/order/get_invoice.py
 
+  authenticate:
+    handler: src/functions/authentication/auth.auth_user
+    events:
+      - http:
+          path: api/auth
+          method: post
+          cors: true
+    package:
+      include:
+        - src/functions/authentication/auth.py
+
+#TODO: REMOVE
+  authVerify:
+    handler: src/functions/authentication/auth.auth_verify
+    events:
+      - http:
+          path: api/auth/verify
+          method: post
+          cors: true
+    package:
+      include:
+        - src/functions/authentication/auth.py
+
 resources:
   Resources:
     ProductsDynamoDbTable:
@@ -208,3 +240,17 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         TableName: ${self:provider.environment.ORDERS_TABLE}
+    UsersDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: username
+            AttributeType: S
+        KeySchema:
+          - AttributeName: username
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.USERS_TABLE}

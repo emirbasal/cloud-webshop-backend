@@ -5,7 +5,7 @@ from src.persistence import db_service
 def delete_product(event, context):
     table = db_service.get_products_table()
 
-    product_exists, item = db_service.does_item_exist(event, table)
+    product_exists, item = db_service.does_item_exist(event['pathParameters']['id'], table)
 
     if product_exists:
         table.delete_item(
