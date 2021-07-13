@@ -45,4 +45,3 @@ def does_user_exist(username, table):
         return True, result['Item']
     else:
         return False, result
-
