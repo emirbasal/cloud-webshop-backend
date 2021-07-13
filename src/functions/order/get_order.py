@@ -12,7 +12,7 @@ def get_order(event, context):
     order_exists, order = db_service.does_item_exist(event['pathParameters']['id'], table)
 
     if order_exists:
-        if order['status'] != 'pending':
+        if order['status'] != 'pending' and order['invoice']:
             return return_existing_order(order)
 
         payment_endpoint, header = lambda_helper.get_payment_api()
