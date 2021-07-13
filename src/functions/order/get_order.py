@@ -4,7 +4,7 @@ from src.persistence import db_service
 
 def get_order(event, context):
     table = db_service.get_orders_table()
-    order_exists, order = db_service.does_item_exist(event, table)
+    order_exists, order = db_service.does_item_exist(event['pathParameters']['id'], table)
 
     if order_exists:
         response = Response(statusCode=200, body=order)

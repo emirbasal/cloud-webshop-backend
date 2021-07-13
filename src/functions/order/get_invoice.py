@@ -9,7 +9,7 @@ table = db_service.get_orders_table()
 
 
 def get_invoice(event, context):
-    order_exists, order = db_service.does_item_exist(event, table)
+    order_exists, order = db_service.does_item_exist(event['pathParameters']['id'], table)
 
     if order_exists:
         payment_endpoint, header = lambda_helper.get_payment_api()

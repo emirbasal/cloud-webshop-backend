@@ -5,7 +5,7 @@ from src.persistence import db_service
 def delete_order(event, context):
     table = db_service.get_orders_table()
 
-    orders_exists, item = db_service.does_item_exist(event, table)
+    orders_exists, item = db_service.does_item_exist(event['pathParameters']['id'], table)
 
     if orders_exists:
         table.delete_item(
