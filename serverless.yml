@@ -172,17 +172,6 @@ functions:
       include:
         - src/functions/order/payment.py
 
-  get_invoice:
-    handler: src/functions/order/get_invoice.get_invoice
-    events:
-      - http:
-          path: api/orders/invoice/{id}
-          method: get
-          cors: true
-    package:
-      include:
-        - src/functions/order/get_invoice.py
-
   authenticate:
     handler: src/functions/authentication/auth.auth_user
     events:
