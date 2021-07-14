@@ -1,4 +1,4 @@
-image: "python:3.7"
+image: "nikolaik/python-nodejs"
 
 before_script:
   - python --version
@@ -7,20 +7,28 @@ before_script:
 stages:
   - Static Analysis
   - Test
+  - Deploy
 
 mypy:
   stage: Static Analysis
   script:
-  - python -m mypy --ignore-missing-imports src/
+    - python -m mypy --ignore-missing-imports src/
 
 
 flake8:
   stage: Static Analysis
   script:
-  - flake8 --max-line-length=120 src/
+    - flake8 --max-line-length=120 src/
 
 pylint:
   stage: Static Analysis
   allow_failure: true
   script:
-  - pylint -d C0301 --errors-only --disable E0401 src/
+    - pylint -d C0301 --errors-only --disable E0401 src/
+
+deploy:
+  stage: deploy
+  before_script:
+    - npm install -g serverless
+  script:
+    - sls deploy --verbose
