@@ -48,4 +48,4 @@ deploy:
     - npm install serverless-python-requirements
     - npm install serverless-dynamodb-autoscaling
   script:
-    - sls deploy --verbose
+    - sls deploy

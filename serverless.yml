@@ -148,6 +148,17 @@ functions:
       include:
         - src/functions/order/create_order.py
 
+  create-order-new:
+    handler: src/functions/order/create_order_new.create_order
+    events:
+      - http:
+          path: api/orders-new
+          method: post
+          cors: true
+    package:
+      include:
+        - src/functions/order/create_order_new.py
+
   list-orders:
     handler: src/functions/order/list_orders.list_orders
     events:
