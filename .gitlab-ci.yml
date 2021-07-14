@@ -5,30 +5,30 @@ stages:
   - Test
   - deploy
 
-mypy:
-  stage: Static Analysis
-  image: python:3.8
-  before_script:
-    - pip install -r requirements_gitlab.txt
-  script:
-    - python -m mypy --ignore-missing-imports src/
-
-flake8:
-  stage: Static Analysis
-  image: python:3.8
-  before_script:
-    - pip install -r requirements_gitlab.txt
-  script:
-    - flake8 --max-line-length=120 src/
-
-pylint:
-  stage: Static Analysis
-  image: python:3.8
-  allow_failure: true
-  before_script:
-    - pip install -r requirements_gitlab.txt
-  script:
-    - pylint -d C0301 --errors-only --disable E0401 src/
+#mypy:
+#  stage: Static Analysis
+#  image: python:3.8
+#  before_script:
+#    - pip install -r requirements_gitlab.txt
+#  script:
+#    - python -m mypy --ignore-missing-imports src/
+#
+#flake8:
+#  stage: Static Analysis
+#  image: python:3.8
+#  before_script:
+#    - pip install -r requirements_gitlab.txt
+#  script:
+#    - flake8 --max-line-length=120 src/
+#
+#pylint:
+#  stage: Static Analysis
+#  image: python:3.8
+#  allow_failure: true
+#  before_script:
+#    - pip install -r requirements_gitlab.txt
+#  script:
+#    - pylint -d C0301 --errors-only --disable E0401 src/
 
 deploy:
   stage: deploy
@@ -37,8 +37,8 @@ deploy:
   variables:
     DOCKER_DRIVER: overlay
   before_script:
-    - apt update -y
-    - apt upgrade -y
+    - apk update -y
+    - apk upgrade -y
     - docker info
     - npm install -g serverless
     - npm install serverless-offline
