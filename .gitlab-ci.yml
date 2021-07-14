@@ -34,9 +34,9 @@ deploy:
   stage: deploy
   image: node:16
   services:
-    - docker:19.03.12-dind
+    - docker:dind
   variables:
-    DOCKER_DRIVER: overlay2
+    DOCKER_DRIVER: overlay
   before_script:
     - docker info
     - npm install -g serverless
