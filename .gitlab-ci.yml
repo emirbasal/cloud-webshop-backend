@@ -5,6 +5,9 @@ stages:
   - Test
   - deploy
 
+before_script:
+  - docker info
+
 mypy:
   stage: Static Analysis
   image: python:3.8
