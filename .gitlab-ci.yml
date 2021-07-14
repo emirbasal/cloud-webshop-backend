@@ -7,7 +7,7 @@ before_script:
 stages:
   - Static Analysis
   - Test
-  - Deploy
+  - deploy
 
 mypy:
   stage: Static Analysis
