@@ -207,6 +207,17 @@ functions:
       include:
         - src/functions/authentication/auth.py
 
+  outcome:
+    handler: src/functions/management/outcome.outcome
+    events:
+      - http:
+          path: api/management/outcome
+          method: get
+          cors: true
+    package:
+      include:
+        - src/functions/management/outcome.py
+
 resources:
   Resources:
     ProductsDynamoDbTable:
