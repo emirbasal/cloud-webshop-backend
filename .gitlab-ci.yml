@@ -38,8 +38,8 @@ deploy:
   variables:
     DOCKER_DRIVER: overlay
   before_script:
-    - apk update
-    - apk upgrade
+    - apt update
+    - apt upgrade
     - docker info
     - npm install -g serverless
     - npm install serverless-offline
