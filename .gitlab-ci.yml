@@ -42,8 +42,8 @@ deploy:
     - apk upgrade
     - docker info
     - npm install -g serverless
-    - npm install serverless-offline
     - npm install serverless-python-requirements
     - npm install serverless-dynamodb-autoscaling
+    - echo "PyJWT==2.1.0" > /var/task/requirements.txt
   script:
     - sls deploy --verbose

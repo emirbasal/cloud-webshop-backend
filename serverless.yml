@@ -34,7 +34,6 @@ custom:
         usage: 0.70        # Targeted usage percentage
 
 plugins:
-  - serverless-offline
   - serverless-python-requirements
   - serverless-dynamodb-autoscaling
 
