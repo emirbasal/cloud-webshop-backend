@@ -32,9 +32,8 @@ pylint:
 
 deploy:
   stage: deploy
-  image: node:16
   services:
-    - docker:dind
+    - docker:19.03.12-dind
   variables:
     DOCKER_DRIVER: overlay
   before_script:
