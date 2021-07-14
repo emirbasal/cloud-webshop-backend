@@ -4,6 +4,7 @@ from src.functions.helper import decimalencoder
 preset_headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Allow-Methods': '*',
     'Content-Type': 'application/json'
     }
 

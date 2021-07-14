@@ -22,16 +22,28 @@ custom:
   accountId: !Ref AWS::AccountId
   pythonRequirements:
     dockerizePip: true
+  capacities:
+    - table: ProductsDynamoDbTable
+      read:
+        minimum: 5        # Minimum read capacity
+        maximum: 40000     # Maximum read capacity
+        usage: 0.70       # Targeted usage percentage
+      write:
+        minimum: 5       # Minimum write capacity
+        maximum: 40000      # Maximum write capacity
+        usage: 0.70        # Targeted usage percentage
 
 plugins:
   - serverless-offline
   - serverless-python-requirements
+  - serverless-dynamodb-autoscaling
 
 provider:
   name: aws
   runtime: python3.8
   timeout: 30
   memorySize: 2048
+  stage: prod
   tracing:
     apiGateway: true
     lambda: true
