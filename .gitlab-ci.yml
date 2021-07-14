@@ -1,8 +1,5 @@
 image: docker:latest
 
-services:
-  - docker:dind
-
 stages:
   - Static Analysis
   - Test
@@ -37,7 +34,12 @@ pylint:
 deploy:
   stage: deploy
   image: node:16
+  variables:
+    DOCKER_DRIVER: overlay2
+  services:
+    - docker:dind
   before_script:
+    - docker info
     - npm install -g serverless
     - npm install serverless-offline
     - npm install serverless-python-requirements
