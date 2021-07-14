@@ -5,44 +5,39 @@ stages:
   - Test
   - deploy
 
-before_script:
-  - docker info
-
-services:
-  - docker:dind
-
-variables:
-  DOCKER_DRIVER: overlay2
-
-mypy:
-  stage: Static Analysis
-  image: python:3.8
-  before_script:
-    - pip install -r requirements_gitlab.txt
-  script:
-    - python -m mypy --ignore-missing-imports src/
-
-
-flake8:
-  stage: Static Analysis
-  image: python:3.8
-  before_script:
-    - pip install -r requirements_gitlab.txt
-  script:
-    - flake8 --max-line-length=120 src/
-
-pylint:
-  stage: Static Analysis
-  image: python:3.8
-  allow_failure: true
-  before_script:
-    - pip install -r requirements_gitlab.txt
-  script:
-    - pylint -d C0301 --errors-only --disable E0401 src/
+#mypy:
+#  stage: Static Analysis
+#  image: python:3.8
+#  before_script:
+#    - pip install -r requirements_gitlab.txt
+#  script:
+#    - python -m mypy --ignore-missing-imports src/
+#
+#
+#flake8:
+#  stage: Static Analysis
+#  image: python:3.8
+#  before_script:
+#    - pip install -r requirements_gitlab.txt
+#  script:
+#    - flake8 --max-line-length=120 src/
+#
+#pylint:
+#  stage: Static Analysis
+#  image: python:3.8
+#  allow_failure: true
+#  before_script:
+#    - pip install -r requirements_gitlab.txt
+#  script:
+#    - pylint -d C0301 --errors-only --disable E0401 src/
 
 deploy:
   stage: deploy
-  image: node:16
+  image: gitlab/dind
+  services:
+    - docker:dind
+  variables:
+    DOCKER_DRIVER: overlay2
   before_script:
     - docker info
     - npm install -g serverless
