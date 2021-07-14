@@ -37,6 +37,7 @@ deploy:
   variables:
     DOCKER_DRIVER: overlay
   before_script:
+    - apk add --update nodejs nodejs-npm
     - apk update
     - apk upgrade
     - docker info
