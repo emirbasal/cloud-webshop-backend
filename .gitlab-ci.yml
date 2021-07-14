@@ -8,6 +8,12 @@ stages:
 before_script:
   - docker info
 
+services:
+  - docker:dind
+
+variables:
+  DOCKER_DRIVER: overlay2
+
 mypy:
   stage: Static Analysis
   image: python:3.8
@@ -37,10 +43,6 @@ pylint:
 deploy:
   stage: deploy
   image: node:16
-  variables:
-    DOCKER_DRIVER: overlay2
-  services:
-    - docker:dind
   before_script:
     - docker info
     - npm install -g serverless
