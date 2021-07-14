@@ -1,12 +1,9 @@
-image: docker:latest
+image: docker:19.03.12
 
 stages:
   - Static Analysis
   - Test
   - deploy
-
-
-
 
 mypy:
   stage: Static Analysis
@@ -18,7 +15,6 @@ mypy:
   tags:
     - webshop
     - backend
-
 
 flake8:
   stage: Static Analysis
@@ -47,7 +43,7 @@ deploy:
   stage: deploy
   image: node:16
   services:
-    - docker:dind
+    - docker:19.03.12-dind
   variables:
     DOCKER_DRIVER: overlay2
   before_script:
