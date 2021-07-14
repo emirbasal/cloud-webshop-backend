@@ -36,6 +36,15 @@ custom:
         minimum: 5       # Minimum write capacity
         maximum: 40000      # Maximum write capacity
         usage: 0.70        # Targeted usage percentage
+    - table: OrdersDynamoDbTable
+      read:
+        minimum: 5        # Minimum read capacity
+        maximum: 40000     # Maximum read capacity
+        usage: 0.70       # Targeted usage percentage
+      write:
+        minimum: 5       # Minimum write capacity
+        maximum: 40000      # Maximum write capacity
+        usage: 0.70        # Targeted usage percentage
 
 plugins:
   - serverless-python-requirements
