@@ -37,6 +37,7 @@ deploy:
   variables:
     DOCKER_DRIVER: overlay
   before_script:
+    - apk add --no-cache python3 py3-pip
     - apk add --update nodejs nodejs-npm
     - apk update
     - apk upgrade
@@ -44,6 +45,6 @@ deploy:
     - npm install -g serverless
     - npm install serverless-python-requirements
     - npm install serverless-dynamodb-autoscaling
-    - echo "PyJWT==2.1.0" > /var/task/requirements.txt
+#    - echo "PyJWT==2.1.0" > /var/task/requirements.txt
   script:
     - sls deploy --verbose
