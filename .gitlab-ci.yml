@@ -33,6 +33,8 @@ pylint:
 test:
   stage: Test
   image: python:3.8
+  before_script:
+    - pip install -r requirements_gitlab.txt
   script:
     - python -m unittest discover src/test/
 
