@@ -1,10 +1,9 @@
 import os
-
 import boto3
 from botocore.client import Config
 
 
-AWS_CONFIG = Config(region_name='us-east-1', retries={'max_attempts': 100})
+AWS_CONFIG = Config(retries={'max_attempts': 100})
 dynamodb = boto3.resource('dynamodb', config=AWS_CONFIG)
 
 
