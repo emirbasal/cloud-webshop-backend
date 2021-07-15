@@ -3,7 +3,7 @@ image: docker:19.03.12
 stages:
   - Static Analysis
   - Test
-  - deploy
+  - Deploy
 
 mypy:
   stage: Static Analysis
@@ -30,8 +30,13 @@ pylint:
   script:
     - pylint -d C0301 --errors-only --disable E0401 src/
 
+test:
+  stage: Test
+  script:
+    - python -m unittest discover src/test/
+
 deploy:
-  stage: deploy
+  stage: Deploy
   only:
     - master
   services:
