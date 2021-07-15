@@ -1,5 +1,5 @@
 import unittest
-from src.main.functions.order.create_order_new import calc_amount
+from src.main.functions.order.create_order import calc_amount
 
 
 # Class for testing the calculated total amount of an order
