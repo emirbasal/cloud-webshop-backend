@@ -1,4 +1,5 @@
 import json
+import logging
 import time
 import uuid
 import boto3
@@ -28,7 +29,7 @@ def create_order(event, context):
         InvocationType='RequestResponse',
         Payload=json.dumps(order)
     )
-    # logging.warning(payment_response)
+    logging.warning(payment_response)
 
     if payment_response['StatusCode'] != 200:
         response = Response(statusCode=400, body={"message": "Error from Payment-API. Please try again"})

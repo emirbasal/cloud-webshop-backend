@@ -26,7 +26,7 @@ def create_product(event, context):
         'id': str(uuid.uuid1()),
         'name': data['name'],
         'description': data['description'],
-        'amount': Decimal(str(data['amount'])),
+        'amount': data['amount'],
         'currency': data['currency'],
         'image': data['image'],
         'createdAt': timestamp,
@@ -35,5 +35,7 @@ def create_product(event, context):
 
     table.put_item(Item=item)
     response = Response(statusCode=200, body=item)
+
+    logging.warning(f'Produkt {item["id"]} wurde angelegt')
 
     return response.to_json()
