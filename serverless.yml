@@ -63,8 +63,8 @@ provider:
     PRODUCTS_TABLE: ${self:custom.productsTableName}
     ORDERS_TABLE: ${self:custom.ordersTableName}
     USERS_TABLE: ${self:custom.usersTableName}
-    REGION: ${self:provider.region}
-#    REGION: 'us-east-1'
+#    REGION: ${self:provider.region}
+    REGION: 'us-east-1'
     STAGE: ${self:provider.stage}
     SERVICE: ${self:service}
     ACCOUNT_ID: ${self:custom.accountId}

@@ -6,10 +6,10 @@ from src.main.functions.helper import lambda_helper
 from src.main.functions.helper.Response import Response
 from src.main.persistence import db_service
 
-client = boto3.client('lambda')
 
 
 def create_order(event, context):
+    client = boto3.client('lambda')
     order = json.loads(event['body'])
     if not is_data_valid(order):
         response = Response(statusCode=400, body={"message": "Validation Failed. Attribute(s) are missing. Couldn't "
