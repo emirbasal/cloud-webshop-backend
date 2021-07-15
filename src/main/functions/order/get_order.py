@@ -1,9 +1,9 @@
 import urllib3
 import json
 import logging
-from src.functions.helper import lambda_helper
-from src.functions.helper.Response import Response
-from src.persistence import db_service
+from src.main.functions.helper import lambda_helper
+from src.main.functions.helper.Response import Response
+from src.main.persistence import db_service
 
 table = db_service.get_orders_table()
 

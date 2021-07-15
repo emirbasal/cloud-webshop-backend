@@ -3,10 +3,9 @@ import logging
 import time
 import uuid
 import boto3
-from src.functions.helper import lambda_helper
-from src.functions.helper.Response import Response
-from src.persistence import db_service
-
+from src.main.functions.helper import lambda_helper
+from src.main.functions.helper.Response import Response
+from src.main.persistence import db_service
 
 client = boto3.client('lambda')
 
