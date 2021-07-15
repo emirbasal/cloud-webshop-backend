@@ -7,7 +7,6 @@ from src.main.functions.helper.Response import Response
 from src.main.persistence import db_service
 
 
-
 def create_order(event, context):
     client = boto3.client('lambda')
     order = json.loads(event['body'])
