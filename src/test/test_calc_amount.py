@@ -1,8 +1,5 @@
 import unittest
 from src.main.functions.order.create_order_new import calc_amount
-from src.main.persistence import db_service
-import boto3
-from botocore.client import Config
 
 
 # Class for testing the calculated total amount of an order
