@@ -1,5 +1,5 @@
 import json
-from src.functions.helper import lambda_helper
+from src.main.functions.helper import lambda_helper
 import urllib3
 
 

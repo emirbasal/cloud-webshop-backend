@@ -3,7 +3,7 @@ image: docker:19.03.12
 stages:
   - Static Analysis
   - Test
-  - deploy
+  - Deploy
 
 mypy:
   stage: Static Analysis
@@ -30,8 +30,16 @@ pylint:
   script:
     - pylint -d C0301 --errors-only --disable E0401 src/
 
+test:
+  stage: Test
+  image: python:3.8
+  before_script:
+    - pip install -r requirements_gitlab.txt
+  script:
+    - python -m unittest discover src/test/
+
 deploy:
-  stage: deploy
+  stage: Deploy
   only:
     - master
   services:
@@ -48,4 +56,4 @@ deploy:
     - npm install serverless-python-requirements
     - npm install serverless-dynamodb-autoscaling
   script:
-    - sls deploy --verbose
+    - sls deploy

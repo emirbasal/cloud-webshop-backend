@@ -1,7 +1,7 @@
 import json
-from src.functions.helper.Response import Response
-from src.persistence import db_service
-from src.functions.helper.auth_helper import verify_token
+from src.main.functions.helper.Response import Response
+from src.main.persistence import db_service
+from src.main.functions.helper.auth_helper import verify_token
 from datetime import datetime, timedelta
 import jwt
 import os

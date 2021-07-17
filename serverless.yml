@@ -12,8 +12,8 @@ package:
     - '.gitignore'
     - 'src/**'
   include:
-    - src/persistence/**
-    - src/functions/helper/**
+    - src/main/persistence/**
+    - src/main/functions/helper/**
 
 custom:
   productsTableName: 'webshop-products-${self:provider.stage}'
@@ -28,6 +28,15 @@ custom:
 
   capacities:
     - table: ProductsDynamoDbTable
+      read:
+        minimum: 5        # Minimum read capacity
+        maximum: 40000     # Maximum read capacity
+        usage: 0.70       # Targeted usage percentage
+      write:
+        minimum: 5       # Minimum write capacity
+        maximum: 40000      # Maximum write capacity
+        usage: 0.70        # Targeted usage percentage
+    - table: OrdersDynamoDbTable
       read:
         minimum: 5        # Minimum read capacity
         maximum: 40000     # Maximum read capacity
@@ -55,6 +64,7 @@ provider:
     ORDERS_TABLE: ${self:custom.ordersTableName}
     USERS_TABLE: ${self:custom.usersTableName}
     REGION: ${self:provider.region}
+#    REGION: 'us-east-1'
     STAGE: ${self:provider.stage}
     SERVICE: ${self:service}
     ACCOUNT_ID: ${self:custom.accountId}
@@ -94,7 +104,7 @@ provider:
 
 functions:
   create-product:
-    handler: src/functions/product/create_product.create_product
+    handler: src/main/functions/product/create_product.create_product
     events:
       - http:
           path: api/products
@@ -102,10 +112,10 @@ functions:
           cors: true
     package:
       include:
-        - src/functions/product/create_product.py
+        - src/main/functions/product/create_product.py
 
   list-products:
-    handler: src/functions/product/list_products.list_products
+    handler: src/main/functions/product/list_products.list_products
     events:
       - http:
           path: api/products
@@ -113,10 +123,10 @@ functions:
           cors: true
     package:
       include:
-        - src/functions/product/list_products.py
+        - src/main/functions/product/list_products.py
 
   get-product:
-    handler: src/functions/product/get_product.get_product
+    handler: src/main/functions/product/get_product.get_product
     events:
       - http:
           path: api/products/{id}
@@ -124,10 +134,10 @@ functions:
           cors: true
     package:
       include:
-        - src/functions/product/get_product.py
+        - src/main/functions/product/get_product.py
 
   delete-product:
-    handler: src/functions/product/delete_product.delete_product
+    handler: src/main/functions/product/delete_product.delete_product
     events:
       - http:
           path: api/products/{id}
@@ -135,10 +145,10 @@ functions:
           cors: true
     package:
       include:
-        - src/functions/product/delete_product.py
+        - src/main/functions/product/delete_product.py
 
   create-order:
-    handler: src/functions/order/create_order.create_order
+    handler: src/main/functions/order/create_order.create_order
     events:
       - http:
           path: api/orders
@@ -146,10 +156,10 @@ functions:
           cors: true
     package:
       include:
-        - src/functions/order/create_order.py
+        - src/main/functions/order/create_order.py
 
   list-orders:
-    handler: src/functions/order/list_orders.list_orders
+    handler: src/main/functions/order/list_orders.list_orders
     events:
       - http:
           path: api/orders
@@ -157,10 +167,10 @@ functions:
           cors: true
     package:
       include:
-        - src/functions/order/list_orders.py
+        - src/main/functions/order/list_orders.py
 
   get-order:
-    handler: src/functions/order/get_order.get_order
+    handler: src/main/functions/order/get_order.get_order
     events:
       - http:
           path: api/orders/{id}
@@ -168,10 +178,10 @@ functions:
           cors: true
     package:
       include:
-        - src/functions/order/get_order.py
+        - src/main/functions/order/get_order.py
 
   delete-order:
-    handler: src/functions/order/delete_order.delete_order
+    handler: src/main/functions/order/delete_order.delete_order
     events:
       - http:
           path: api/orders/{id}
@@ -179,16 +189,16 @@ functions:
           cors: true
     package:
       include:
-        - src/functions/order/delete_order.py
+        - src/main/functions/order/delete_order.py
 
   payment:
-    handler: src/functions/order/payment.payment
+    handler: src/main/functions/order/payment.payment
     package:
       include:
-        - src/functions/order/payment.py
+        - src/main/functions/order/payment.py
 
   authenticate:
-    handler: src/functions/authentication/auth.auth_user
+    handler: src/main/functions/authentication/auth.auth_user
     events:
       - http:
           path: api/auth
@@ -196,11 +206,11 @@ functions:
           cors: true
     package:
       include:
-        - src/functions/authentication/auth.py
+        - src/main/functions/authentication/auth.py
 
 #TODO: REMOVE
   authVerify:
-    handler: src/functions/authentication/auth.auth_verify
+    handler: src/main/functions/authentication/auth.auth_verify
     events:
       - http:
           path: api/auth/verify
@@ -208,10 +218,10 @@ functions:
           cors: true
     package:
       include:
-        - src/functions/authentication/auth.py
+        - src/main/functions/authentication/auth.py
 
   outcome:
-    handler: src/functions/management/outcome.outcome
+    handler: src/main/functions/management/outcome.outcome
     events:
       - http:
           path: api/management/outcome
@@ -219,7 +229,7 @@ functions:
           cors: true
     package:
       include:
-        - src/functions/management/outcome.py
+        - src/main/functions/management/outcome.py
 
 resources:
   Resources:
