@@ -1,4 +1,3 @@
-import logging
 from src.main.functions.helper.Response import Response
 from src.main.persistence import db_service
 from src.main.functions.helper.auth_helper import is_authenticated
