@@ -3,6 +3,14 @@ import jwt
 import os
 
 
+def is_authenticated(request):
+    if 'Authorization' in request['headers'] and request['headers']['Authorization']:
+        authorization = request['headers']['Authorization']
+        token = get_token(authorization)
+        return verify_token(token)
+    return False
+
+
 def verify_token(jwt_token):
     try:
         payload = jwt.decode(jwt_token, os.environ['JWT_SECRET'],
@@ -12,3 +20,9 @@ def verify_token(jwt_token):
         return False
 
     return True
+
+
+def get_token(token):
+    if "Bearer " in token:
+        return token.split("Bearer ")[1]
+    return ''
