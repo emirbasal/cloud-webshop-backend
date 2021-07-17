@@ -5,9 +5,10 @@ from src.main.functions.helper.auth_helper import verify_token
 from datetime import datetime, timedelta
 import jwt
 import os
+import bcrypt
+import logging
 
-
-JWT_EXP_DELTA_SECONDS = 3600
+JWT_EXP_DELTA_SECONDS = 60
 
 
 def auth_user(event, context):
@@ -16,8 +17,14 @@ def auth_user(event, context):
 
     user_exists, user = db_service.does_user_exist(received_data['username'], table)
 
+    response = Response(statusCode=200, body={'token': ''})
+
     if user_exists:
-        if user['password'] == received_data['password']:
+        logging.warning(user['password'].encode())
+        logging.warning(received_data['password'].encode())
+        password_hash = user['password'].encode()
+        received_password = received_data['password'].encode()
+        if bcrypt.checkpw(received_password,  password_hash):
             payload = {
                 'user_id': user['username'],
                 'exp': datetime.utcnow() + timedelta(seconds=JWT_EXP_DELTA_SECONDS)
@@ -25,11 +32,6 @@ def auth_user(event, context):
             jwt_token = jwt.encode(payload, os.environ['JWT_SECRET'], os.environ['JWT_ALGORITHM'])
 
             response = Response(statusCode=200, body={'token': jwt_token})
-        else:
-            response = Response(statusCode=200, body={'Message': 'Wrong password'})
-
-    else:
-        response = Response(statusCode=404, body={'Message': 'User not found'})
 
     return response.to_json()
 
