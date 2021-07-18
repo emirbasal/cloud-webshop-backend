@@ -22,7 +22,7 @@ def get_order(event, context):
             response = Response(statusCode=200, body=order)
 
             # Checking if informations for delivery is already existent
-            if not order['delivery_status']:
+            if 'delivery_status' not in order or not order['delivery_status']:
                 publish_to_sns_delivery(order)
 
         else:
@@ -38,7 +38,11 @@ def get_order(event, context):
             order['status'] = order_from_api['status']
             order['invoice'] = order_from_api['invoice']
 
-            response = Response(statusCode=200, body=order)
+            if order_from_api['status'] == 'declined':
+                response = Response(statusCode=400, body=order)
+            else:
+                response = Response(statusCode=200, body=order)
+
     else:
         response = Response(statusCode=404, body={'Message': 'Order not found!'})
 
@@ -71,20 +75,12 @@ def set_status_and_invoice(order_id, status, invoice):
 
 
 def publish_to_sns_delivery(order):
-    products = get_products_for_sns(order['items'])
-    # Payload zusammekriegen
-    order_for_sns = {
-        'id': order['id'],
-        'items': products,
-        'address': order['address']
-    }
-
     client = boto3.client('lambda')
     arn = lambda_helper.get_arn('delivery-publish')
     sns_response = client.invoke(
         FunctionName=arn,
         InvocationType='RequestResponse',
-        Payload=json.dumps(order_for_sns, cls=DecimalEncoder)
+        Payload=json.dumps(order, cls=DecimalEncoder)
     )
 
     payload = sns_response['Payload']
@@ -93,15 +89,3 @@ def publish_to_sns_delivery(order):
 
     logging.warning(response.to_json())
     return response.to_json()
-
-
-def get_products_for_sns(products):
-    all_products_for_sns = []
-    for product in products:
-        sns_product = {
-            'name': product['description'],
-            'quantity': int(product['quantity'])
-        }
-        all_products_for_sns.append(sns_product)
-
-    return all_products_for_sns

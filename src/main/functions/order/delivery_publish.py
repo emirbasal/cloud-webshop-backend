@@ -8,11 +8,12 @@ from src.main.functions.helper.Response import Response
 def delivery_publish(event, context):
     client = boto3.client('sns')
 
-    order = json.dumps(event)
-    sns_message = parse_order(order)
+    # order = json.loads(event)
+    logging.warning(event)
+    sns_message = parse_order(event)
     response_sns = client.publish(
         TopicArn=os.environ['SNS_TOPIC_PUBLISH'],
-        Message=sns_message
+        Message=json.dumps(sns_message)
     )
 
     logging.warning(response_sns)
