@@ -4,7 +4,9 @@ import uuid
 import boto3
 from src.main.functions.helper import lambda_helper
 from src.main.functions.helper.Response import Response
+from src.main.functions.helper.decimalencoder import DecimalEncoder
 from src.main.persistence import db_service
+import logging
 
 
 def create_order(event, context):
@@ -44,7 +46,9 @@ def create_order(event, context):
     table.put_item(Item=order)
     response = Response(statusCode=200, body=order)
 
-    # SEND SNS TOPIC
+    # Publishing to sns topic to get delivery status and information
+    response_from_sns = publish_to_sns_delivery(order)
+    logging.warning(response_from_sns)
 
     return response.to_json()
 
@@ -89,3 +93,40 @@ def calc_amount(products_of_order):
         amount_sum += product['amount']
 
     return amount_sum
+
+
+def publish_to_sns_delivery(order):
+    products = get_products_for_sns(order['items'])
+    # Payload zusammekriegen
+    order_for_sns = {
+        'id': order['id'],
+        'items': products,
+        'address': order['address']
+    }
+
+    client = boto3.client('lambda')
+    arn = lambda_helper.get_arn('delivery-publish')
+    sns_response = client.invoke(
+        FunctionName=arn,
+        InvocationType='RequestResponse',
+        Payload=json.dumps(order_for_sns, cls=DecimalEncoder)
+    )
+
+    payload = sns_response['Payload']
+    data = payload.read()
+    response = Response(statusCode=sns_response['StatusCode'], body={"message": json.loads(data)})
+
+    logging.warning(response.to_json())
+    return response.to_json()
+
+
+def get_products_for_sns(products):
+    all_products_for_sns = []
+    for product in products:
+        sns_product = {
+            'name': product['description'],
+            'quantity': int(product['quantity'])
+        }
+        all_products_for_sns.append(sns_product)
+
+    return all_products_for_sns
