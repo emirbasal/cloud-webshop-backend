@@ -3,7 +3,9 @@ import json
 import logging
 from src.main.functions.helper import lambda_helper
 from src.main.functions.helper.Response import Response
+from src.main.functions.helper.decimalencoder import DecimalEncoder
 from src.main.persistence import db_service
+import boto3
 
 table = db_service.get_orders_table()
 
@@ -12,49 +14,43 @@ def get_order(event, context):
     order_exists, order = db_service.does_item_exist(event['pathParameters']['id'], table)
 
     if order_exists:
-        if order['status'] != 'pending' and order['invoice']:
-            return return_existing_order(order)
-
-        order_id = order['id']
-
-        # Getting invoice pdf
-        response_from_api = send_order_to_payment_api(order)
-        order_from_api = json.loads(response_from_api.data)
-        if order_from_api['status'] != 'accepted':
+        if order['status'] == 'declined':
             response = Response(statusCode=400, body={'Message': 'The payment method was declined. Pleas try again '
                                                                  'with a valid credit card!'})
-            set_status_and_invoice(order_id, 'declined', None)
-            return response.to_json()
 
-        logging.warning(order)
-        set_status_and_invoice(order_id, 'accepted', order_from_api['invoice'])
+        elif order['status'] == 'accepted' and order['invoice']:
+            response = Response(statusCode=200, body=order)
 
-        # Additionally changing order object to return to frontend
-        order['status'] = 'accepted'
-        order['invoice'] = order_from_api['invoice']
+            # Checking if informations for delivery is already existent
+            if not order['delivery_status']:
+                publish_to_sns_delivery(order)
 
-        response = Response(statusCode=200, body=order)
+        else:
+            # Status is pending
+
+            # Getting invoice pdf from payment api
+            response_from_api = send_order_to_payment_api(order)
+            order_from_api = json.loads(response_from_api.data)
+
+            set_status_and_invoice(order_from_api['id'], order_from_api['status'], order_from_api['invoice'])
+
+            # Additionally changing order object to return to frontend
+            order['status'] = order_from_api['status']
+            order['invoice'] = order_from_api['invoice']
+
+            response = Response(statusCode=200, body=order)
     else:
         response = Response(statusCode=404, body={'Message': 'Order not found!'})
 
     return response.to_json()
 
 
-# Return response from payment api
+# Returns response from payment api
 def send_order_to_payment_api(order):
     payment_endpoint, header = lambda_helper.get_payment_api()
     http = urllib3.PoolManager()
     url = f"{payment_endpoint}/{order['id']}"
     return http.request('GET', url, headers=header, retries=True)
-
-
-def return_existing_order(order):
-    if order['status'] == 'accepted':
-        response = Response(statusCode=200, body=order)
-    else:
-        response = Response(statusCode=400, body={'Message': 'The payment method was declined. Pleas try again '
-                                                             'with a valid credit card!'})
-    return response.to_json()
 
 
 def set_status_and_invoice(order_id, status, invoice):
@@ -72,3 +68,40 @@ def set_status_and_invoice(order_id, status, invoice):
             "#in": "invoice"
         }
     )
+
+
+def publish_to_sns_delivery(order):
+    products = get_products_for_sns(order['items'])
+    # Payload zusammekriegen
+    order_for_sns = {
+        'id': order['id'],
+        'items': products,
+        'address': order['address']
+    }
+
+    client = boto3.client('lambda')
+    arn = lambda_helper.get_arn('delivery-publish')
+    sns_response = client.invoke(
+        FunctionName=arn,
+        InvocationType='RequestResponse',
+        Payload=json.dumps(order_for_sns, cls=DecimalEncoder)
+    )
+
+    payload = sns_response['Payload']
+    data = payload.read()
+    response = Response(statusCode=sns_response['StatusCode'], body={"message": json.loads(data)})
+
+    logging.warning(response.to_json())
+    return response.to_json()
+
+
+def get_products_for_sns(products):
+    all_products_for_sns = []
+    for product in products:
+        sns_product = {
+            'name': product['description'],
+            'quantity': int(product['quantity'])
+        }
+        all_products_for_sns.append(sns_product)
+
+    return all_products_for_sns
