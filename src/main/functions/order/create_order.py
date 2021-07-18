@@ -9,23 +9,22 @@ from src.main.persistence import db_service
 
 def create_order(event, context):
     client = boto3.client('lambda')
-    order = json.loads(event['body'])
-    if not is_data_valid(order):
+    order_from_request = json.loads(event['body'])
+    if not is_data_valid(order_from_request):
         response = Response(statusCode=400, body={"message": "Validation Failed. Attribute(s) are missing. Couldn't "
                                                              "create the order."})
         return response.to_json()
 
-    order = create_order_for_paymentAPI(order)
-    if not order['items']:
+    order_for_payment_api = create_order_for_payment_api(order_from_request)
+    if not order_for_payment_api['items']:
         response = Response(statusCode=400, body={"message": "Product(s) can not be found in database"})
         return response.to_json()
 
-    items = order['items']
     arn = lambda_helper.get_arn('payment')
     payment_response = client.invoke(
         FunctionName=arn,
         InvocationType='RequestResponse',
-        Payload=json.dumps(order)
+        Payload=json.dumps(order_for_payment_api)
     )
 
     if payment_response['StatusCode'] != 200:
@@ -36,26 +35,30 @@ def create_order(event, context):
 
     payload = payment_response['Payload']
     data = payload.read()
-
     order = json.loads(data)
     order['createdAt'] = str(time.time())
-    order['items'] = items
+    order['items'] = order_from_request['items']
+    order['address'] = order_from_request['address']
 
     table = db_service.get_orders_table()
     table.put_item(Item=order)
     response = Response(statusCode=200, body=order)
 
+    # SEND SNS TOPIC
+
     return response.to_json()
 
 
 def is_data_valid(data):
-    if 'email' in data and 'items' in data and 'status' in data and 'card' in data:
-        if data['email'] and data['items'] and data['status'] and data['card']['number']:
+    if 'email' in data and 'items' in data and 'status' in data and 'card' in data and 'address' in data:
+        if (data['email'] and data['items'] and data['status'] and data['card']['number']
+                and data['address']['address1'] and data['address']['address2'] and data['address']['city']
+                and data['address']['country']):
             return True
     return False
 
 
-def create_order_for_paymentAPI(order):
+def create_order_for_payment_api(order):
     order['id'] = str(uuid.uuid1())
     order['items'] = lookup_items(order['items'])
     order['amount'] = calc_amount(order['items'])
