@@ -4,9 +4,7 @@ import uuid
 import boto3
 from src.main.functions.helper import lambda_helper
 from src.main.functions.helper.Response import Response
-from src.main.functions.helper.decimalencoder import DecimalEncoder
 from src.main.persistence import db_service
-import logging
 
 
 def create_order(event, context):

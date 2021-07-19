@@ -214,18 +214,6 @@ functions:
       include:
         - src/main/functions/authentication/auth.py
 
-#TODO: REMOVE
-  authVerify:
-    handler: src/main/functions/authentication/auth.auth_verify
-    events:
-      - http:
-          path: api/auth/verify
-          method: post
-          cors: true
-    package:
-      include:
-        - src/main/functions/authentication/auth.py
-
   outcome:
     handler: src/main/functions/management/outcome.outcome
     events:
@@ -255,19 +243,6 @@ functions:
     package:
       include:
         - src/main/functions/order/delivery_subscribed.py
-
-  delivery-test:
-    handler: src/main/functions/order/delivery_test.delivery_publish
-    events:
-      - http:
-          path: api/test
-          method: get
-          cors: true
-    package:
-      include:
-        - src/main/functions/order/delivery_test.py
-
-
 
 resources:
   Resources:

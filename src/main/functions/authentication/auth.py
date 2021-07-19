@@ -34,17 +34,3 @@ def auth_user(event, context):
             response = Response(statusCode=200, body={'token': jwt_token})
 
     return response.to_json()
-
-
-# TODO: REMOVE
-def auth_verify(event, context):
-    received_data = json.loads(event['body'])
-    token = received_data['token']
-    if token:
-        is_token_valid = verify_token(token)
-
-        response = Response(statusCode=200, body={'Message': is_token_valid})
-    else:
-        response = Response(statusCode=404, body={'Message': 'User not found'})
-
-    return response.to_json()
