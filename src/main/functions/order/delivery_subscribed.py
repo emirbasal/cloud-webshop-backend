@@ -29,6 +29,6 @@ def set_delivery_status(order_id, status):
             ":s": status
         },
         ExpressionAttributeNames={
-            "#st": "delivery_status"
+            "#st": "deliveryStatus"
         }
     )

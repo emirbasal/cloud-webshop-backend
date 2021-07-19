@@ -22,7 +22,7 @@ def get_order(event, context):
             response = Response(statusCode=200, body=order)
 
             # Checking if informations for delivery is already existent
-            if 'delivery_status' not in order or not order['delivery_status']:
+            if 'deliveryStatus' not in order or not order['deliveryStatus']:
                 publish_to_sns_delivery(order)
 
         else:
