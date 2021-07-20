@@ -74,6 +74,7 @@ provider:
     SNS_TOPIC_RECEIVE: 'arn:aws:sns:eu-central-1:745170541333:foobar-gmbh-lagerhaltung-antworten'
     JWT_SECRET: 'secret'
     JWT_ALGORITHM: 'HS256'
+    JWT_EXP_SECONDS: '300'
 
   iamRoleStatements:
     - Effect: Allow

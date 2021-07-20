@@ -7,7 +7,7 @@ import os
 import bcrypt
 import logging
 
-JWT_EXP_DELTA_SECONDS = 60
+JWT_EXP_DELTA_SECONDS = os.environ['JWT_EXP_SECONDS']
 
 
 def auth_user(event, context):
