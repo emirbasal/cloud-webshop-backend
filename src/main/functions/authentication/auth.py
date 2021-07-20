@@ -1,6 +1,6 @@
 import json
-from src.main.functions.helper.Response import Response
-from src.main.persistence import db_service
+from src.main.helper.classes.response import Response
+from src.main.helper.services import db_service
 from datetime import datetime, timedelta
 import jwt
 import os
@@ -11,7 +11,7 @@ JWT_EXP_DELTA_SECONDS = os.environ['JWT_EXP_SECONDS']
 
 
 def auth_user(event, context):
-    table = db_service.get_table("USERS_TABLE")
+    table = db_service.get_users_table()
     received_data = json.loads(event['body'])
 
     user_exists, user = db_service.does_user_exist(received_data['username'], table)

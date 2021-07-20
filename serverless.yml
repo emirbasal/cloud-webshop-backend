@@ -12,8 +12,7 @@ package:
     - '.gitignore'
     - 'src/**'
   include:
-    - src/main/persistence/**
-    - src/main/functions/helper/**
+    - src/main/helper/**
 
 custom:
   productsTableName: 'webshop-products-${self:provider.stage}'

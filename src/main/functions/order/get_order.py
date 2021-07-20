@@ -1,10 +1,9 @@
 import urllib3
 import json
 import logging
-from src.main.functions.helper import lambda_helper
-from src.main.functions.helper.Response import Response
-from src.main.functions.helper.decimalencoder import DecimalEncoder
-from src.main.persistence import db_service
+from src.main.helper.services import external_resource_service, db_service
+from src.main.helper.classes.response import Response
+from src.main.helper.classes.decimalencoder import DecimalEncoder
 import boto3
 
 table = db_service.get_orders_table()
@@ -51,7 +50,7 @@ def get_order(event, context):
 
 # Returns response from payment api
 def send_order_to_payment_api(order):
-    payment_endpoint, header = lambda_helper.get_payment_api()
+    payment_endpoint, header = external_resource_service.get_payment_api()
     http = urllib3.PoolManager()
     url = f"{payment_endpoint}/{order['id']}"
     return http.request('GET', url, headers=header, retries=True)
@@ -76,7 +75,7 @@ def set_status_and_invoice(order_id, status, invoice):
 
 def publish_to_sns_delivery(order):
     client = boto3.client('lambda')
-    arn = lambda_helper.get_arn('delivery-publish')
+    arn = external_resource_service.get_arn('delivery-publish')
     sns_response = client.invoke(
         FunctionName=arn,
         InvocationType='RequestResponse',

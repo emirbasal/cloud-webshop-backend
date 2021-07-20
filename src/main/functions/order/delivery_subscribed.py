@@ -1,8 +1,7 @@
 import logging
 import json
 
-from src.main.persistence import db_service
-
+from src.main.helper.services import db_service
 
 table = db_service.get_orders_table()
 

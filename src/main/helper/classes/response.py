@@ -1,5 +1,5 @@
 import json
-from src.main.functions.helper import decimalencoder
+from src.main.helper.classes import decimalencoder
 
 preset_headers = {
     'Access-Control-Allow-Origin': '*',

@@ -2,7 +2,7 @@ import boto3
 import logging
 import os
 import json
-from src.main.functions.helper.Response import Response
+from src.main.helper.classes.response import Response
 
 
 def delivery_publish(event, context):

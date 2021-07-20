@@ -2,9 +2,8 @@ import json
 import time
 import uuid
 import boto3
-from src.main.functions.helper import lambda_helper
-from src.main.functions.helper.Response import Response
-from src.main.persistence import db_service
+from src.main.helper.services import external_resource_service, db_service
+from src.main.helper.classes.response import Response
 
 
 def create_order(event, context):
@@ -20,7 +19,7 @@ def create_order(event, context):
         response = Response(statusCode=400, body={"message": "Product(s) can not be found in database"})
         return response.to_json()
 
-    arn = lambda_helper.get_arn('payment')
+    arn = external_resource_service.get_arn('payment')
     payment_response = client.invoke(
         FunctionName=arn,
         InvocationType='RequestResponse',
