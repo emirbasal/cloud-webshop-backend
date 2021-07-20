@@ -28,22 +28,22 @@ custom:
   capacities:
     - table: ProductsDynamoDbTable
       read:
-        minimum: 5        # Minimum read capacity
-        maximum: 40000     # Maximum read capacity
-        usage: 0.70       # Targeted usage percentage
+        minimum: 5
+        maximum: 40000
+        usage: 0.70
       write:
-        minimum: 5       # Minimum write capacity
-        maximum: 40000      # Maximum write capacity
-        usage: 0.70        # Targeted usage percentage
+        minimum: 5
+        maximum: 40000
+        usage: 0.70
     - table: OrdersDynamoDbTable
       read:
-        minimum: 5        # Minimum read capacity
-        maximum: 40000     # Maximum read capacity
-        usage: 0.70       # Targeted usage percentage
+        minimum: 5
+        maximum: 40000
+        usage: 0.70
       write:
-        minimum: 5       # Minimum write capacity
-        maximum: 40000      # Maximum write capacity
-        usage: 0.70        # Targeted usage percentage
+        minimum: 5
+        maximum: 40000
+        usage: 0.70
 
 plugins:
   - serverless-python-requirements
@@ -97,7 +97,6 @@ provider:
       Action:
         - lambda:InvokeFunction
         - lambda:InvokeAsync
-      #TODO: CHANGE
       Resource: "*"
     - Effect: Allow
       Action:
