@@ -2,6 +2,7 @@ import json
 import time
 import uuid
 import boto3
+import os
 from src.main.helper.services import external_resource_service, db_service
 from src.main.helper.classes.response import Response
 
@@ -59,8 +60,7 @@ def create_order_for_payment_api(order):
     order['id'] = str(uuid.uuid1())
     order['items'] = lookup_items(order['items'])
     order['amount'] = calc_amount(order['items'])
-    # TODO: Make globally changable
-    order['currency'] = 'EUR'
+    order['currency'] = os.environ['SHOP_CURRENCY']
     return order
 
 

@@ -75,6 +75,7 @@ provider:
     JWT_ALGORITHM: 'HS256'
     JWT_EXP_SECONDS: 300
     FRONTEND_ORIGIN: 'https://d2emmlz3725wm2.cloudfront.net'
+    SHOP_CURRENCY: 'EUR'
 
   iamRoleStatements:
     - Effect: Allow
