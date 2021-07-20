@@ -7,10 +7,10 @@ import os
 import bcrypt
 import logging
 
-JWT_EXP_DELTA_SECONDS = os.environ['JWT_EXP_SECONDS']
-
 
 def auth_user(event, context):
+    jwt_exp_seconds = os.environ['JWT_EXP_SECONDS']
+
     table = db_service.get_users_table()
     received_data = json.loads(event['body'])
 
@@ -26,7 +26,7 @@ def auth_user(event, context):
         if bcrypt.checkpw(received_password,  password_hash):
             payload = {
                 'user_id': user['username'],
-                'exp': datetime.utcnow() + timedelta(seconds=JWT_EXP_DELTA_SECONDS)
+                'exp': datetime.utcnow() + timedelta(seconds=int(jwt_exp_seconds))
             }
             jwt_token = jwt.encode(payload, os.environ['JWT_SECRET'], os.environ['JWT_ALGORITHM'])
 

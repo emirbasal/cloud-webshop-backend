@@ -73,7 +73,8 @@ provider:
     SNS_TOPIC_RECEIVE: 'arn:aws:sns:eu-central-1:745170541333:foobar-gmbh-lagerhaltung-antworten'
     JWT_SECRET: 'secret'
     JWT_ALGORITHM: 'HS256'
-    JWT_EXP_SECONDS: '300'
+    JWT_EXP_SECONDS: 300
+    FRONTEND_ORIGIN: 'https://d2emmlz3725wm2.cloudfront.net'
 
   iamRoleStatements:
     - Effect: Allow
@@ -115,7 +116,8 @@ functions:
       - http:
           path: api/products
           method: post
-          cors: true
+          cors:
+            origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
       include:
         - src/main/functions/product/create_product.py
@@ -126,7 +128,8 @@ functions:
       - http:
           path: api/products
           method: get
-          cors: true
+          cors:
+            origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
       include:
         - src/main/functions/product/list_products.py
@@ -137,7 +140,8 @@ functions:
       - http:
           path: api/products/{id}
           method: get
-          cors: true
+          cors:
+            origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
       include:
         - src/main/functions/product/get_product.py
@@ -148,7 +152,8 @@ functions:
       - http:
           path: api/products/{id}
           method: delete
-          cors: true
+          cors:
+            origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
       include:
         - src/main/functions/product/delete_product.py
@@ -159,7 +164,8 @@ functions:
       - http:
           path: api/orders
           method: post
-          cors: true
+          cors:
+            origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
       include:
         - src/main/functions/order/create_order.py
@@ -170,7 +176,8 @@ functions:
       - http:
           path: api/orders
           method: get
-          cors: true
+          cors:
+            origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
       include:
         - src/main/functions/order/list_orders.py
@@ -181,7 +188,8 @@ functions:
       - http:
           path: api/orders/{id}
           method: get
-          cors: true
+          cors:
+            origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
       include:
         - src/main/functions/order/get_order.py
@@ -192,7 +200,8 @@ functions:
       - http:
           path: api/orders/{id}
           method: delete
-          cors: true
+          cors:
+            origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
       include:
         - src/main/functions/order/delete_order.py
@@ -209,7 +218,8 @@ functions:
       - http:
           path: api/auth
           method: post
-          cors: true
+          cors:
+            origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
       include:
         - src/main/functions/authentication/auth.py
@@ -220,7 +230,8 @@ functions:
       - http:
           path: api/management/outcome
           method: get
-          cors: true
+          cors:
+            origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
       include:
         - src/main/functions/management/outcome.py
@@ -231,7 +242,8 @@ functions:
       - http:
           path: api/test
           method: get
-          cors: true
+          cors:
+            origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
       include:
         - src/main/functions/order/delivery_publish.py

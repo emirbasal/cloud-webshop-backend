@@ -1,8 +1,9 @@
 import json
 from src.main.helper.classes import decimalencoder
+import os
 
 preset_headers = {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': os.environ['FRONTEND_ORIGIN'],
     'Access-Control-Allow-Credentials': 'true',
     'Access-Control-Allow-Methods': '*',
     'Content-Type': 'application/json'
