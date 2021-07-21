@@ -3,7 +3,7 @@ service: webshop-backend
 plugins:
   - serverless-python-requirements
   - serverless-dynamodb-autoscaling
-  - serverless-vpc-plugin
+#  - serverless-vpc-plugin
 
 package:
   individually: true
@@ -49,45 +49,40 @@ custom:
         minimum: 5
         maximum: 40000
         usage: 0.70
-  vpcConfig:
-    cidrBlock: '10.0.0.0/16'
 
-    # if createNatGateway is a boolean "true", a NAT Gateway and EIP will be provisioned in each zone
-    # if createNatGateway is a number, that number of NAT Gateways will be provisioned
-    createNatGateway: 2
-
-    # When enabled, the DB subnet will only be accessible from the Application subnet
-    # Both the Public and Application subnets will be accessible from 0.0.0.0/0
-    createNetworkAcl: false
-
-    # Whether to create the DB subnet
-    createDbSubnet: true
-
-    # Whether to enable VPC flow logging to an S3 bucket
-    createFlowLogs: true
-
-    # Whether to create a bastion host
-    createBastionHost: false
-
-    # Whether to create a NAT instance
-    createNatInstance: false
-
-    # Whether to create AWS Systems Manager (SSM) Parameters
-    createParameters: false
-
-    # Optionally specify AZs (defaults to auto-discover all availabile AZs)
-    zones:
-      - eu-central-1a
-      - eu-central-1b
-      - eu-central-1c
-
-    # Optionally specify subnet groups to create. If not provided, subnet groups
-    # for RDS, Redshift, ElasticCache and DAX will be provisioned.
-    subnetGroups:
-      - rds
-
-    # Whether to export stack outputs so it may be consumed by other stacks
-    exportOutputs: false
+#  vpcConfig:
+#    cidrBlock: '10.0.0.0/16'
+#
+#    # if createNatGateway is a boolean "true", a NAT Gateway and EIP will be provisioned in each zone
+#    # if createNatGateway is a number, that number of NAT Gateways will be provisioned
+#    createNatGateway: true
+#
+#    # When enabled, the DB subnet will only be accessible from the Application subnet
+#    # Both the Public and Application subnets will be accessible from 0.0.0.0/0
+#    createNetworkAcl: true
+#
+#    # Whether to create the DB subnet
+#    createDbSubnet: true
+#
+#    # Whether to enable VPC flow logging to an S3 bucket
+#    createFlowLogs: true
+#
+#    # Whether to create a bastion host
+#    createBastionHost: false
+#
+#    # Whether to create a NAT instance
+#    createNatInstance: false
+#
+#    # Whether to create AWS Systems Manager (SSM) Parameters
+#    createParameters: false
+#
+#    # Optionally specify subnet groups to create. If not provided, subnet groups
+#    # for RDS, Redshift, ElasticCache and DAX will be provisioned.
+#    subnetGroups:
+#      - rds
+#
+#    # Whether to export stack outputs so it may be consumed by other stacks
+#    exportOutputs: true
 
 provider:
   name: aws
@@ -278,12 +273,6 @@ functions:
 
   delivery-publish:
     handler: src/main/functions/order/delivery_publish.delivery_publish
-    events:
-      - http:
-          path: api/test
-          method: get
-          cors:
-            origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
       include:
         - src/main/functions/order/delivery_publish.py
@@ -300,7 +289,7 @@ resources:
   Resources:
     ProductsDynamoDbTable:
       Type: 'AWS::DynamoDB::Table'
-      DeletionPolicy: Retain
+      DeletionPolicy: Delete
       Properties:
         AttributeDefinitions:
           -
@@ -316,7 +305,7 @@ resources:
         TableName: ${self:provider.environment.PRODUCTS_TABLE}
     OrdersDynamoDbTable:
       Type: 'AWS::DynamoDB::Table'
-      DeletionPolicy: Retain
+      DeletionPolicy: Delete
       Properties:
         AttributeDefinitions:
           -
@@ -332,7 +321,7 @@ resources:
         TableName: ${self:provider.environment.ORDERS_TABLE}
     UsersDynamoDbTable:
       Type: 'AWS::DynamoDB::Table'
-      DeletionPolicy: Retain
+      DeletionPolicy: Delete
       Properties:
         AttributeDefinitions:
           - AttributeName: username
