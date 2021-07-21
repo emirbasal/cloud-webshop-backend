@@ -3,7 +3,6 @@ service: webshop-backend
 plugins:
   - serverless-python-requirements
   - serverless-dynamodb-autoscaling
-#  - serverless-vpc-plugin
 
 package:
   individually: true
@@ -50,40 +49,6 @@ custom:
         maximum: 40000
         usage: 0.70
 
-#  vpcConfig:
-#    cidrBlock: '10.0.0.0/16'
-#
-#    # if createNatGateway is a boolean "true", a NAT Gateway and EIP will be provisioned in each zone
-#    # if createNatGateway is a number, that number of NAT Gateways will be provisioned
-#    createNatGateway: true
-#
-#    # When enabled, the DB subnet will only be accessible from the Application subnet
-#    # Both the Public and Application subnets will be accessible from 0.0.0.0/0
-#    createNetworkAcl: true
-#
-#    # Whether to create the DB subnet
-#    createDbSubnet: true
-#
-#    # Whether to enable VPC flow logging to an S3 bucket
-#    createFlowLogs: true
-#
-#    # Whether to create a bastion host
-#    createBastionHost: false
-#
-#    # Whether to create a NAT instance
-#    createNatInstance: false
-#
-#    # Whether to create AWS Systems Manager (SSM) Parameters
-#    createParameters: false
-#
-#    # Optionally specify subnet groups to create. If not provided, subnet groups
-#    # for RDS, Redshift, ElasticCache and DAX will be provisioned.
-#    subnetGroups:
-#      - rds
-#
-#    # Whether to export stack outputs so it may be consumed by other stacks
-#    exportOutputs: true
-
 provider:
   name: aws
   runtime: python3.8
@@ -91,6 +56,10 @@ provider:
   memorySize: 2048
   stage: prod
   region: eu-central-1
+  apiGateway:
+    apiKeys:
+      - name: API-KEY
+        value: secretApiKeyForLambdaEndpoints
   tracing:
     apiGateway: true
     lambda: true
@@ -108,6 +77,7 @@ provider:
     SNS_TOPIC_RECEIVE: 'arn:aws:sns:eu-central-1:745170541333:foobar-gmbh-lagerhaltung-antworten'
     JWT_SECRET: 'secret'
     JWT_ALGORITHM: 'HS256'
+    # Time in seconds for how long a jwt is valid
     JWT_EXP_SECONDS: 300
     FRONTEND_ORIGIN: 'https://d2emmlz3725wm2.cloudfront.net'
     SHOP_CURRENCY: 'EUR'
@@ -151,6 +121,7 @@ functions:
       - http:
           path: api/products
           method: post
+          private: true
           cors:
             origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
@@ -163,6 +134,7 @@ functions:
       - http:
           path: api/products
           method: get
+          private: true
           cors:
             origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
@@ -175,6 +147,7 @@ functions:
       - http:
           path: api/products/{id}
           method: get
+          private: true
           cors:
             origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
@@ -187,6 +160,7 @@ functions:
       - http:
           path: api/products/{id}
           method: delete
+          private: true
           cors:
             origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
@@ -199,6 +173,7 @@ functions:
       - http:
           path: api/orders
           method: post
+          private: true
           cors:
             origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
@@ -211,6 +186,7 @@ functions:
       - http:
           path: api/orders
           method: get
+          private: true
           cors:
             origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
@@ -223,6 +199,7 @@ functions:
       - http:
           path: api/orders/{id}
           method: get
+          private: true
           cors:
             origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
@@ -235,6 +212,7 @@ functions:
       - http:
           path: api/orders/{id}
           method: delete
+          private: true
           cors:
             origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
@@ -253,6 +231,7 @@ functions:
       - http:
           path: api/auth
           method: post
+          private: true
           cors:
             origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
@@ -265,6 +244,7 @@ functions:
       - http:
           path: api/management/outcome
           method: get
+          private: true
           cors:
             origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
