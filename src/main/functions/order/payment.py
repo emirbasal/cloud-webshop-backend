@@ -15,7 +15,8 @@ def payment(event, context):
         return response.to_json()
 
     http = urllib3.PoolManager()
-    response_from_payment_api = http.request('POST', payment_endpoint, body=json.dumps(order_for_payment_api), headers=header, retries=False)
+    response_from_payment_api = http.request('POST', payment_endpoint, body=json.dumps(order_for_payment_api),
+                                             headers=header, retries=False)
 
     response = json.loads(response_from_payment_api.data)
 
