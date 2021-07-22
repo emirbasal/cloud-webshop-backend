@@ -21,7 +21,7 @@ class TestCalcAmount(TestCase):
         ]
 
         # Import is here bc it will throw an error otherwise for not finding the env variables
-        from src.main.functions.order.create_order import calc_amount
+        from src.main.functions.order.payment import calc_amount
 
         self.assertEqual(calc_amount(order_items), 351)
 
@@ -37,14 +37,14 @@ class TestCalcAmount(TestCase):
                 'amount': 0
             }
         ]
-        from src.main.functions.order.create_order import calc_amount
+        from src.main.functions.order.payment import calc_amount
 
         self.assertEqual(calc_amount(order_items), 0)
 
     def test_calc_empty_order(self):
         order_items = []
 
-        from src.main.functions.order.create_order import calc_amount
+        from src.main.functions.order.payment import calc_amount
 
         self.assertEqual(calc_amount(order_items), 0)
 
