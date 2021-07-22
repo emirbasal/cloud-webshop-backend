@@ -57,3 +57,4 @@ deploy:
     - npm install serverless-dynamodb-autoscaling
   script:
     - sls deploy
+
