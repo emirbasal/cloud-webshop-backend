@@ -43,7 +43,8 @@ deploy:
   only:
     - master
   services:
-    - docker:19.03.12-dind
+    - name: docker:19.03.12-dind
+      alias: docker
   variables:
     DOCKER_DRIVER: overlay
   before_script:
