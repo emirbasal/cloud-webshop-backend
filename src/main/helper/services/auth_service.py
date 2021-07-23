@@ -12,8 +12,7 @@ def is_authenticated(request):
 
 def verify_token(token):
     try:
-        payload = jwt.decode(token, os.environ['JWT_SECRET'],
-                             algorithms=[os.environ['JWT_ALGORITHM']])
+        jwt.decode(token, os.environ['JWT_SECRET'], algorithms=[os.environ['JWT_ALGORITHM']])
     except (jwt.DecodeError, jwt.ExpiredSignatureError):
         return False
 
