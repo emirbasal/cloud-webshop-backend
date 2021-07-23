@@ -1,11 +1,10 @@
 import json
-from src.main.helper.classes.response import Response
-from src.main.helper.services import db_service
-from datetime import datetime, timedelta
 import jwt
 import os
 import bcrypt
-import logging
+from src.main.helper.classes.response import Response
+from src.main.helper.services import db_service
+from datetime import datetime, timedelta
 
 
 def auth_user(event, context):
@@ -19,8 +18,6 @@ def auth_user(event, context):
     response = Response(statusCode=200, body={'token': ''})
 
     if user_exists:
-        logging.warning(user['password'].encode())
-        logging.warning(received_data['password'].encode())
         password_hash = user['password'].encode()
         received_password = received_data['password'].encode()
         if bcrypt.checkpw(received_password,  password_hash):

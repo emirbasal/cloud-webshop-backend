@@ -13,6 +13,7 @@ def create_order(event, context):
                                                              "create the order."})
         return response.to_json()
 
+    # invoke payment lambda function
     arn = external_resource_service.get_arn('payment')
     payment_response = client.invoke(
         FunctionName=arn,

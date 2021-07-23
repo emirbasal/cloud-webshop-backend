@@ -4,19 +4,19 @@ from botocore.client import Config
 
 
 AWS_CONFIG = Config(region_name=os.environ['REGION'], retries={'max_attempts': 100})
-dynamodb = boto3.resource('dynamodb', config=AWS_CONFIG)
+dynamo_db = boto3.resource('dynamodb', config=AWS_CONFIG)
 
 
 def get_products_table():
-    return dynamodb.Table(os.environ['PRODUCTS_TABLE'])
+    return dynamo_db.Table(os.environ['PRODUCTS_TABLE'])
 
 
 def get_orders_table():
-    return dynamodb.Table(os.environ['ORDERS_TABLE'])
+    return dynamo_db.Table(os.environ['ORDERS_TABLE'])
 
 
 def get_users_table():
-    return dynamodb.Table(os.environ['USERS_TABLE'])
+    return dynamo_db.Table(os.environ['USERS_TABLE'])
 
 
 def does_item_exist(item_id, table):

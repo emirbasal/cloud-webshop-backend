@@ -29,6 +29,7 @@ custom:
     useStaticCache: true
     cacheLocation: ./.serverless/.requirements_cache
 
+# Autoscaling for dynamoDB
   capacities:
     - table: ProductsDynamoDbTable
       read:
@@ -112,7 +113,7 @@ provider:
     - Effect: "Allow"
       Action:
         - "SNS:Publish"
-      Resource: "arn:aws:sns:eu-central-1:745170541333:foobar-gmbh-lagerhaltung-anfragen"
+      Resource: ${self:provider.environment.SNS_TOPIC_PUBLISH}
 
 functions:
   create-product:
@@ -219,6 +220,7 @@ functions:
       include:
         - src/main/functions/order/delete_order.py
 
+  # Does not have an endpoint. Gets invoked by create-order function
   payment:
     handler: src/main/functions/order/payment.payment
     package:
@@ -251,12 +253,14 @@ functions:
       include:
         - src/main/functions/management/outcome.py
 
+  # Does not have an enpoint. Gets invoked by get-order function after payment was accepted
   delivery-publish:
     handler: src/main/functions/order/delivery_publish.delivery_publish
     package:
       include:
         - src/main/functions/order/delivery_publish.py
 
+  # Does not have an enpoint. Gets triggered by sns topic
   delivery-subscribed:
     handler: src/main/functions/order/delivery_subscribed.save_status_to_order
     events:
@@ -272,12 +276,10 @@ resources:
       DeletionPolicy: Delete
       Properties:
         AttributeDefinitions:
-          -
-            AttributeName: id
+          - AttributeName: id
             AttributeType: S
         KeySchema:
-          -
-            AttributeName: id
+          - AttributeName: id
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
@@ -288,12 +290,10 @@ resources:
       DeletionPolicy: Delete
       Properties:
         AttributeDefinitions:
-          -
-            AttributeName: id
+          - AttributeName: id
             AttributeType: S
         KeySchema:
-          -
-            AttributeName: id
+          - AttributeName: id
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1

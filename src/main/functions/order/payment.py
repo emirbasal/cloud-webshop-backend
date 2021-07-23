@@ -7,20 +7,19 @@ from src.main.helper.classes.response import Response
 
 
 def payment(event, context):
-    payment_endpoint, header = external_resource_service.get_payment_api()
-
     order_for_payment_api = create_order_for_payment_api(event)
     if not order_for_payment_api['items']:
         response = Response(statusCode=400, body={"message": "Product(s) can not be found in database"})
         return response.to_json()
 
     http = urllib3.PoolManager()
+    payment_endpoint, header = external_resource_service.get_payment_api()
     response_from_payment_api = http.request('POST', payment_endpoint, body=json.dumps(order_for_payment_api),
                                              headers=header, retries=False)
 
     response = json.loads(response_from_payment_api.data)
 
-    # Take status and invoice from payment api
+    # Take status and invoice from response of payment api
     order_for_payment_api['status'] = response['status']
     order_for_payment_api['invoice'] = response['invoice']
 
@@ -36,6 +35,7 @@ def create_order_for_payment_api(order):
     return order
 
 
+# Get information from database bc frontend only sends id and quantity
 def lookup_items(products_from_request):
     all_products = []
     products_table = db_service.get_products_table()

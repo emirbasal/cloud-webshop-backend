@@ -1,14 +1,12 @@
-import logging
 import json
-
 from src.main.helper.services import db_service
 
 table = db_service.get_orders_table()
 
 
+# Gets triggered by sns topic
 def save_status_to_order(event, context):
     message = json.loads(event['Records'][0]['Sns']['Message'])
-    logging.warning(message)
 
     order_id_from_sns = message.pop('id')
     all_orders = table.scan()
@@ -18,6 +16,7 @@ def save_status_to_order(event, context):
             set_delivery_status(order_id_from_sns, message)
 
 
+# Updates order entry
 def set_delivery_status(order_id, status):
     table.update_item(
         Key={

@@ -2,6 +2,7 @@ import json
 from src.main.helper.classes import decimalencoder
 import os
 
+
 preset_headers = {
     'Access-Control-Allow-Origin': os.environ['FRONTEND_ORIGIN'],
     'Access-Control-Allow-Credentials': 'true',
@@ -10,6 +11,7 @@ preset_headers = {
     }
 
 
+# Response class which generalizes sent responses for all lambda functions
 class Response:
 
     def __init__(self, statusCode, body):

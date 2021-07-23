@@ -1,10 +1,9 @@
 import urllib3
 import json
-import logging
+import boto3
 from src.main.helper.services import external_resource_service, db_service
 from src.main.helper.classes.response import Response
 from src.main.helper.classes.decimalencoder import DecimalEncoder
-import boto3
 
 table = db_service.get_orders_table()
 
@@ -20,7 +19,7 @@ def get_order(event, context):
         elif order['status'] == 'accepted' and order['invoice']:
             response = Response(statusCode=200, body=order)
 
-            # Checking if informations for delivery is already existent
+            # Checking if informations for delivery is already existent. If yes publish infos to delivery sns topic
             if 'deliveryStatus' not in order or not order['deliveryStatus']:
                 publish_to_sns_delivery(order)
 
@@ -56,6 +55,7 @@ def send_order_to_payment_api(order):
     return http.request('GET', url, headers=header, retries=True)
 
 
+# Update entry in order table
 def set_status_and_invoice(order_id, status, invoice):
     table.update_item(
         Key={
@@ -86,5 +86,4 @@ def publish_to_sns_delivery(order):
     data = payload.read()
     response = Response(statusCode=sns_response['StatusCode'], body={"message": json.loads(data)})
 
-    logging.warning(response.to_json())
     return response.to_json()
