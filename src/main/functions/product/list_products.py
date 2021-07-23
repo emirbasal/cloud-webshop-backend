@@ -1,5 +1,5 @@
-from src.main.functions.helper.Response import Response
-from src.main.persistence import db_service
+from src.main.helper.classes.response import Response
+from src.main.helper.services import db_service
 
 
 def list_products(event, context):
@@ -7,7 +7,6 @@ def list_products(event, context):
     result = table.scan()
 
     if 'Items' in result:
-        # response = Response(statusCode=200, body=json.dumps(result['Items'], cls=decimalencoder.DecimalEncoder))
         response = Response(statusCode=200, body=result['Items'])
     else:
         response = Response(statusCode=404, body={'Message': 'Data not available.'})

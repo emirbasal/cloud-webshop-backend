@@ -2,23 +2,21 @@ import os
 import boto3
 from botocore.client import Config
 
-# Has to be set because of unit tests TODO: Change
-AWS_CONFIG = Config(region_name='eu-central-1', retries={'max_attempts': 100})
-dynamodb = boto3.resource('dynamodb', config=AWS_CONFIG)
+
+AWS_CONFIG = Config(region_name=os.environ['REGION'], retries={'max_attempts': 100})
+dynamo_db = boto3.resource('dynamodb', config=AWS_CONFIG)
 
 
-# TODO: REMOVE
 def get_products_table():
-    return dynamodb.Table(os.environ['PRODUCTS_TABLE'])
+    return dynamo_db.Table(os.environ['PRODUCTS_TABLE'])
 
 
-# TODO: REMOVE
 def get_orders_table():
-    return dynamodb.Table(os.environ['ORDERS_TABLE'])
+    return dynamo_db.Table(os.environ['ORDERS_TABLE'])
 
 
-def get_table(table_name):
-    return dynamodb.Table(os.environ[table_name])
+def get_users_table():
+    return dynamo_db.Table(os.environ['USERS_TABLE'])
 
 
 def does_item_exist(item_id, table):

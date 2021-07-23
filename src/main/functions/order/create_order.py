@@ -1,10 +1,8 @@
 import json
 import time
-import uuid
 import boto3
-from src.main.functions.helper import lambda_helper
-from src.main.functions.helper.Response import Response
-from src.main.persistence import db_service
+from src.main.helper.services import external_resource_service, db_service
+from src.main.helper.classes.response import Response
 
 
 def create_order(event, context):
@@ -15,16 +13,12 @@ def create_order(event, context):
                                                              "create the order."})
         return response.to_json()
 
-    order_for_payment_api = create_order_for_payment_api(order_from_request)
-    if not order_for_payment_api['items']:
-        response = Response(statusCode=400, body={"message": "Product(s) can not be found in database"})
-        return response.to_json()
-
-    arn = lambda_helper.get_arn('payment')
+    # invoke payment lambda function
+    arn = external_resource_service.get_arn('payment')
     payment_response = client.invoke(
         FunctionName=arn,
         InvocationType='RequestResponse',
-        Payload=json.dumps(order_for_payment_api)
+        Payload=json.dumps(order_from_request)
     )
 
     if payment_response['StatusCode'] != 200:
@@ -36,9 +30,8 @@ def create_order(event, context):
     payload = payment_response['Payload']
     data = payload.read()
     order = json.loads(data)
+
     order['createdAt'] = str(time.time())
-    order['items'] = order_from_request['items']
-    order['address'] = order_from_request['address']
 
     table = db_service.get_orders_table()
     table.put_item(Item=order)
@@ -54,36 +47,3 @@ def is_data_valid(data):
                 and data['address']['country']):
             return True
     return False
-
-
-def create_order_for_payment_api(order):
-    order['id'] = str(uuid.uuid1())
-    order['items'] = lookup_items(order['items'])
-    order['amount'] = calc_amount(order['items'])
-    # TODO: Make globally changable
-    order['currency'] = 'EUR'
-    return order
-
-
-def lookup_items(products_from_request):
-    all_products = []
-    products_table = db_service.get_products_table()
-    for product_from_request in products_from_request:
-        does_exist, product = db_service.does_item_exist(product_from_request['id'], products_table)
-        if not does_exist:
-            return []
-        product_from_request['amount'] = int(product['amount']) * product_from_request['quantity']
-        product_from_request['description'] = product['name']
-        product_from_request['currency'] = product['currency']
-
-        all_products.append(product_from_request)
-
-    return all_products
-
-
-def calc_amount(products_of_order):
-    amount_sum = 0
-    for product in products_of_order:
-        amount_sum += product['amount']
-
-    return amount_sum

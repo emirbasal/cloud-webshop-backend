@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "serverless-dynamodb-autoscaling": "^0.6.2",
+    "serverless-python-requirements": "^5.1.1"
+  }
+}

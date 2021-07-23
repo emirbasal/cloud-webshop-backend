@@ -1,11 +1,9 @@
 import urllib3
 import json
-import logging
-from src.main.functions.helper import lambda_helper
-from src.main.functions.helper.Response import Response
-from src.main.functions.helper.decimalencoder import DecimalEncoder
-from src.main.persistence import db_service
 import boto3
+from src.main.helper.services import external_resource_service, db_service
+from src.main.helper.classes.response import Response
+from src.main.helper.classes.decimalencoder import DecimalEncoder
 
 table = db_service.get_orders_table()
 
@@ -21,7 +19,7 @@ def get_order(event, context):
         elif order['status'] == 'accepted' and order['invoice']:
             response = Response(statusCode=200, body=order)
 
-            # Checking if informations for delivery is already existent
+            # Checking if informations for delivery is already existent. If yes publish infos to delivery sns topic
             if 'deliveryStatus' not in order or not order['deliveryStatus']:
                 publish_to_sns_delivery(order)
 
@@ -51,12 +49,13 @@ def get_order(event, context):
 
 # Returns response from payment api
 def send_order_to_payment_api(order):
-    payment_endpoint, header = lambda_helper.get_payment_api()
+    payment_endpoint, header = external_resource_service.get_payment_api()
     http = urllib3.PoolManager()
     url = f"{payment_endpoint}/{order['id']}"
     return http.request('GET', url, headers=header, retries=True)
 
 
+# Update entry in order table
 def set_status_and_invoice(order_id, status, invoice):
     table.update_item(
         Key={
@@ -76,7 +75,7 @@ def set_status_and_invoice(order_id, status, invoice):
 
 def publish_to_sns_delivery(order):
     client = boto3.client('lambda')
-    arn = lambda_helper.get_arn('delivery-publish')
+    arn = external_resource_service.get_arn('delivery-publish')
     sns_response = client.invoke(
         FunctionName=arn,
         InvocationType='RequestResponse',
@@ -87,5 +86,4 @@ def publish_to_sns_delivery(order):
     data = payload.read()
     response = Response(statusCode=sns_response['StatusCode'], body={"message": json.loads(data)})
 
-    logging.warning(response.to_json())
     return response.to_json()

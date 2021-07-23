@@ -1,10 +1,9 @@
-from src.main.functions.helper.Response import Response
-from src.main.persistence import db_service
+from src.main.helper.classes.response import Response
+from src.main.helper.services import db_service
 
 
 def delete_order(event, context):
     table = db_service.get_orders_table()
-
     orders_exists, item = db_service.does_item_exist(event['pathParameters']['id'], table)
 
     if orders_exists:

@@ -1,5 +1,9 @@
 service: webshop-backend
 
+plugins:
+  - serverless-python-requirements
+  - serverless-dynamodb-autoscaling
+
 package:
   individually: true
   exclude:
@@ -12,8 +16,7 @@ package:
     - '.gitignore'
     - 'src/**'
   include:
-    - src/main/persistence/**
-    - src/main/functions/helper/**
+    - src/main/helper/**
 
 custom:
   productsTableName: 'webshop-products-${self:provider.stage}'
@@ -26,29 +29,26 @@ custom:
     useStaticCache: true
     cacheLocation: ./.serverless/.requirements_cache
 
+# Autoscaling for dynamoDB
   capacities:
     - table: ProductsDynamoDbTable
       read:
-        minimum: 5        # Minimum read capacity
-        maximum: 40000     # Maximum read capacity
-        usage: 0.70       # Targeted usage percentage
+        minimum: 5
+        maximum: 40000
+        usage: 0.70
       write:
-        minimum: 5       # Minimum write capacity
-        maximum: 40000      # Maximum write capacity
-        usage: 0.70        # Targeted usage percentage
+        minimum: 5
+        maximum: 40000
+        usage: 0.70
     - table: OrdersDynamoDbTable
       read:
-        minimum: 5        # Minimum read capacity
-        maximum: 40000     # Maximum read capacity
-        usage: 0.70       # Targeted usage percentage
+        minimum: 5
+        maximum: 40000
+        usage: 0.70
       write:
-        minimum: 5       # Minimum write capacity
-        maximum: 40000      # Maximum write capacity
-        usage: 0.70        # Targeted usage percentage
-
-plugins:
-  - serverless-python-requirements
-  - serverless-dynamodb-autoscaling
+        minimum: 5
+        maximum: 40000
+        usage: 0.70
 
 provider:
   name: aws
@@ -57,6 +57,10 @@ provider:
   memorySize: 2048
   stage: prod
   region: eu-central-1
+  apiGateway:
+    apiKeys:
+      - name: API-KEY
+        value: secretApiKeyForLambdaEndpoints
   tracing:
     apiGateway: true
     lambda: true
@@ -74,6 +78,10 @@ provider:
     SNS_TOPIC_RECEIVE: 'arn:aws:sns:eu-central-1:745170541333:foobar-gmbh-lagerhaltung-antworten'
     JWT_SECRET: 'secret'
     JWT_ALGORITHM: 'HS256'
+    # Time in seconds for how long a jwt is valid
+    JWT_EXP_SECONDS: 300
+    FRONTEND_ORIGIN: 'https://d2emmlz3725wm2.cloudfront.net'
+    SHOP_CURRENCY: 'EUR'
 
   iamRoleStatements:
     - Effect: Allow
@@ -96,7 +104,6 @@ provider:
       Action:
         - lambda:InvokeFunction
         - lambda:InvokeAsync
-      #TODO: CHANGE
       Resource: "*"
     - Effect: Allow
       Action:
@@ -106,7 +113,7 @@ provider:
     - Effect: "Allow"
       Action:
         - "SNS:Publish"
-      Resource: "arn:aws:sns:eu-central-1:745170541333:foobar-gmbh-lagerhaltung-anfragen"
+      Resource: ${self:provider.environment.SNS_TOPIC_PUBLISH}
 
 functions:
   create-product:
@@ -115,7 +122,9 @@ functions:
       - http:
           path: api/products
           method: post
-          cors: true
+          private: true
+          cors:
+            origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
       include:
         - src/main/functions/product/create_product.py
@@ -126,7 +135,9 @@ functions:
       - http:
           path: api/products
           method: get
-          cors: true
+          private: true
+          cors:
+            origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
       include:
         - src/main/functions/product/list_products.py
@@ -137,7 +148,9 @@ functions:
       - http:
           path: api/products/{id}
           method: get
-          cors: true
+          private: true
+          cors:
+            origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
       include:
         - src/main/functions/product/get_product.py
@@ -148,7 +161,9 @@ functions:
       - http:
           path: api/products/{id}
           method: delete
-          cors: true
+          private: true
+          cors:
+            origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
       include:
         - src/main/functions/product/delete_product.py
@@ -159,7 +174,9 @@ functions:
       - http:
           path: api/orders
           method: post
-          cors: true
+          private: true
+          cors:
+            origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
       include:
         - src/main/functions/order/create_order.py
@@ -170,7 +187,9 @@ functions:
       - http:
           path: api/orders
           method: get
-          cors: true
+          private: true
+          cors:
+            origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
       include:
         - src/main/functions/order/list_orders.py
@@ -181,7 +200,9 @@ functions:
       - http:
           path: api/orders/{id}
           method: get
-          cors: true
+          private: true
+          cors:
+            origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
       include:
         - src/main/functions/order/get_order.py
@@ -192,11 +213,14 @@ functions:
       - http:
           path: api/orders/{id}
           method: delete
-          cors: true
+          private: true
+          cors:
+            origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
       include:
         - src/main/functions/order/delete_order.py
 
+  # Does not have an endpoint. Gets invoked by create-order function
   payment:
     handler: src/main/functions/order/payment.payment
     package:
@@ -209,7 +233,9 @@ functions:
       - http:
           path: api/auth
           method: post
-          cors: true
+          private: true
+          cors:
+            origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
       include:
         - src/main/functions/authentication/auth.py
@@ -220,22 +246,21 @@ functions:
       - http:
           path: api/management/outcome
           method: get
-          cors: true
+          private: true
+          cors:
+            origin: ${self:provider.environment.FRONTEND_ORIGIN}
     package:
       include:
         - src/main/functions/management/outcome.py
 
+  # Does not have an enpoint. Gets invoked by get-order function after payment was accepted
   delivery-publish:
     handler: src/main/functions/order/delivery_publish.delivery_publish
-    events:
-      - http:
-          path: api/test
-          method: get
-          cors: true
     package:
       include:
         - src/main/functions/order/delivery_publish.py
 
+  # Does not have an enpoint. Gets triggered by sns topic
   delivery-subscribed:
     handler: src/main/functions/order/delivery_subscribed.save_status_to_order
     events:
@@ -248,15 +273,13 @@ resources:
   Resources:
     ProductsDynamoDbTable:
       Type: 'AWS::DynamoDB::Table'
-      DeletionPolicy: Retain
+      DeletionPolicy: Delete
       Properties:
         AttributeDefinitions:
-          -
-            AttributeName: id
+          - AttributeName: id
             AttributeType: S
         KeySchema:
-          -
-            AttributeName: id
+          - AttributeName: id
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
@@ -264,15 +287,13 @@ resources:
         TableName: ${self:provider.environment.PRODUCTS_TABLE}
     OrdersDynamoDbTable:
       Type: 'AWS::DynamoDB::Table'
-      DeletionPolicy: Retain
+      DeletionPolicy: Delete
       Properties:
         AttributeDefinitions:
-          -
-            AttributeName: id
+          - AttributeName: id
             AttributeType: S
         KeySchema:
-          -
-            AttributeName: id
+          - AttributeName: id
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
@@ -280,7 +301,7 @@ resources:
         TableName: ${self:provider.environment.ORDERS_TABLE}
     UsersDynamoDbTable:
       Type: 'AWS::DynamoDB::Table'
-      DeletionPolicy: Retain
+      DeletionPolicy: Delete
       Properties:
         AttributeDefinitions:
           - AttributeName: username
