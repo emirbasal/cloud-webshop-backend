@@ -80,7 +80,7 @@ provider:
     JWT_ALGORITHM: 'HS256'
     # Time in seconds for how long a jwt is valid
     JWT_EXP_SECONDS: 300
-    FRONTEND_ORIGIN: 'https://d2emmlz3725wm2.cloudfront.net'
+    FRONTEND_ORIGIN: 'https://d2m00l8hus8iuh.cloudfront.net'
     SHOP_CURRENCY: 'EUR'
 
   iamRoleStatements:
@@ -93,13 +93,13 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
       Resource:
-        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.PRODUCTS_TABLE}"
-        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.ORDERS_TABLE}"
+        - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.PRODUCTS_TABLE}"
+        - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ORDERS_TABLE}"
     - Effect: Allow
       Action:
         - dynamodb:GetItem
       Resource:
-        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.USERS_TABLE}"
+        - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.USERS_TABLE}"
     - Effect: Allow
       Action:
         - lambda:InvokeFunction

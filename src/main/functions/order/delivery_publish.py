@@ -1,6 +1,7 @@
 import boto3
 import os
 import json
+import logging
 from src.main.helper.classes.response import Response
 
 
@@ -13,6 +14,8 @@ def delivery_publish(event, context):
         Message=json.dumps(sns_message)
     )
     response = Response(statusCode=response_sns['ResponseMetadata']['HTTPStatusCode'], body=response_sns)
+
+    logging.warning(response.to_json())
 
     return response.to_json()
 
