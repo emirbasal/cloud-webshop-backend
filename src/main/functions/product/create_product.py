@@ -1,5 +1,4 @@
 import json
-import logging
 import time
 import uuid
 from src.main.helper.classes.response import Response
@@ -29,8 +28,6 @@ def create_product(event, context):
             table = db_service.get_products_table()
             table.put_item(Item=item)
             response = Response(statusCode=200, body=item)
-
-            logging.warning(f'Produkt {item["id"]} wurde angelegt')
     else:
         response = Response(statusCode=403, body={'Message': 'Not authorized'})
 
